@@ -1,0 +1,40 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+import styles from "@/app/landing.module.css";
+import { poppins, inter } from "@/lib/fonts";
+import LandingHeader from "@/components/LandingHeader";
+import LandingFooter from "@/components/LandingFooter";
+
+export default function ToolPageShell({ children }: { children: ReactNode }) {
+  return (
+    <div className={`${styles.page} ${poppins.variable} ${inter.variable}`}>
+      <LandingHeader />
+
+      <section className={styles.section} style={{ paddingTop: 32 }}>
+        <div className={styles.wrap}>
+          <Link
+            href="/"
+            className={styles.linkButton}
+            style={{ display: "inline-flex", alignItems: "center", gap: 4, marginBottom: 24 }}
+          >
+            ← Retour à l&apos;accueil
+          </Link>
+
+          <div
+            style={{
+              background: "var(--white)",
+              border: "1px solid var(--line)",
+              borderRadius: 20,
+              padding: "40px 32px",
+              boxShadow: "0 16px 32px -18px rgba(32, 41, 31, 0.16)",
+            }}
+          >
+            {children}
+          </div>
+        </div>
+      </section>
+
+      <LandingFooter />
+    </div>
+  );
+}

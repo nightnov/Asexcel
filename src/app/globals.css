@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@keyframes iq-fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes iq-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes iq-bounce-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.iq-anim-question {
+  animation: iq-fade-slide-in 0.35s ease-out;
+}
+
+.iq-anim-pop {
+  animation: iq-pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.iq-anim-bounce {
+  animation: iq-bounce-in 0.4s ease-out backwards;
+}
+
+@keyframes iq-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.iq-anim-spin {
+  animation: iq-spin 0.8s linear infinite;
+}
+
+@keyframes iq-progress-fill {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.iq-anim-progress {
+  animation: iq-progress-fill 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ---------- /login animated visual ---------- */
+
+@keyframes login-shine-sweep {
+  0% {
+    transform: translateX(-120%) skewX(-15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  60%,
+  100% {
+    transform: translateX(220%) skewX(-15deg);
+    opacity: 0;
+  }
+}
+
+.login-shine {
+  overflow: hidden;
+}
+
+.login-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  animation: login-shine-sweep 4.5s ease-in-out infinite;
+}
+
+@keyframes login-pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(52, 211, 153, 0);
+  }
+}
+
+.login-pulse-glow {
+  animation: login-pulse-glow 2s ease-in-out infinite;
+}
+
+/* Purely decorative — the card and its content stay fully visible and
+   legible with the sweep/pulse turned off. */
+@media (prefers-reduced-motion: reduce) {
+  .login-shine::before,
+  .login-pulse-glow {
+    animation: none !important;
+  }
+}
