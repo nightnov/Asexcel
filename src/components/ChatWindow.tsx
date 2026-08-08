@@ -10,6 +10,7 @@ import LandingHeader from "./LandingHeader";
 import QuotaCounter from "./QuotaCounter";
 import QuotaModal from "./QuotaModal";
 import AuthModal from "./AuthModal";
+import AdBanner from "./AdBanner";
 import { poppins, inter } from "@/lib/fonts";
 import landingStyles from "@/app/landing.module.css";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
@@ -148,7 +149,8 @@ export default function ChatWindow() {
     <div className={`${landingStyles.page} flex h-screen flex-col ${poppins.variable} ${inter.variable}`}>
       <LandingHeader />
 
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-4 py-4">
+      <div className="mx-auto flex w-full max-w-5xl flex-1 justify-center gap-6 overflow-hidden px-4 py-4">
+        <div className="flex w-full max-w-2xl flex-1 flex-col overflow-hidden">
         <div className="mb-3 flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700">
             {tc.backToHome}
@@ -233,6 +235,11 @@ export default function ChatWindow() {
         </form>
 
         {!AUTH_DISABLED && <TurnstileWidget onVerify={setTurnstileToken} />}
+      </div>
+
+      <aside className="hidden w-[300px] shrink-0 pt-1 lg:block">
+        <AdBanner slot="sidebar" />
+      </aside>
       </div>
 
       <QuotaModal

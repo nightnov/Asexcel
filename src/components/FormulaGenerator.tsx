@@ -7,6 +7,7 @@ import TurnstileWidget from "./TurnstileWidget";
 import QuotaCounter from "./QuotaCounter";
 import QuotaModal from "./QuotaModal";
 import AuthModal from "./AuthModal";
+import AdBanner from "./AdBanner";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { detectLanguage } from "@/lib/excelFormulaTranslator";
 import { useDailyQuota, GUEST_DAILY_LIMIT } from "@/lib/useDailyQuota";
@@ -336,6 +337,7 @@ export default function FormulaGenerator() {
             {cached && (
               <p className="mt-1 text-[11px] text-slate-400">⚡ {tt.cachedNote}</p>
             )}
+            {result && !isLoading && <AdBanner slot="tool-result" className="mt-4" />}
           </div>
         )}
       </div>
