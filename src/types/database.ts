@@ -1,7 +1,7 @@
 export type FileStatus = "uploaded" | "processing" | "ready" | "error";
 export type MessageRole = "user" | "assistant" | "system";
 export type UserPlan = "free" | "pro";
-export type ProPlanType = "monthly" | "annual" | "lifetime";
+export type ProPlanType = "monthly" | "annual";
 
 export interface Database {
   // Required by @supabase/supabase-js's typed-client generics (matches the

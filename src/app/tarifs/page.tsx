@@ -5,12 +5,10 @@ import { useState } from "react";
 import styles from "@/app/landing.module.css";
 import { poppins, inter } from "@/lib/fonts";
 import LandingFooter from "@/components/LandingFooter";
-import ProCheckoutModal from "@/components/ProCheckoutModal";
 import AuthModal from "@/components/AuthModal";
 import { useLocale } from "@/components/LocaleProvider";
 
 export default function TarifsPage() {
-  const [showModal, setShowModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { t } = useLocale();
   const p = t.pages.tarifs;
@@ -121,13 +119,12 @@ export default function TarifsPage() {
                   {p.proFeature3}
                 </li>
               </ul>
-              <button
-                type="button"
-                onClick={() => setShowModal(true)}
+              <Link
+                href="/checkout"
                 className="mt-6 flex h-11 w-full items-center justify-center rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44]"
               >
                 {p.proCta}
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -135,7 +132,6 @@ export default function TarifsPage() {
 
       <LandingFooter dark />
 
-      {showModal && <ProCheckoutModal onClose={() => setShowModal(false)} />}
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );

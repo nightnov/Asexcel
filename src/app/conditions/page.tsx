@@ -32,6 +32,9 @@ export default function ConditionsPage() {
       <h2 className="text-lg font-semibold text-ink">{c.a5.title}</h2>
       <p>{c.a5.text}</p>
 
+      <h2 className="text-lg font-semibold text-ink">{c.aSub.title}</h2>
+      <p>{c.aSub.text}</p>
+
       <h2 className="text-lg font-semibold text-ink">{c.a6.title}</h2>
       <p>{c.a6.intro}</p>
       <ul className="list-disc space-y-1.5 pl-5">

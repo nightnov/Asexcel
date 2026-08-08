@@ -3,14 +3,13 @@
  * creation). Provider-neutral: these dollar amounts are for display only
  * and must be kept in sync with whatever the Lemon Squeezy variant is
  * actually configured to charge (see src/lib/lemonSqueezy.ts for the
- * variant ID lookup).
+ * variant ID lookup). Only recurring plans — no one-time "lifetime" tier.
  */
-export type ProPlanType = "monthly" | "annual" | "lifetime";
+export type ProPlanType = "monthly" | "annual";
 
 export const PRO_PRICING: Record<ProPlanType, { amountUsd: number }> = {
   monthly: { amountUsd: 9.99 },
   annual: { amountUsd: 79.99 },
-  lifetime: { amountUsd: 99.99 },
 };
 
 /**

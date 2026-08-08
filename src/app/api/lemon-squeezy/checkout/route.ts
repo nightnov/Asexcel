@@ -7,7 +7,7 @@ import type { ProPlanType } from "@/lib/proPricing";
 
 export const runtime = "nodejs";
 
-const VALID_PLANS: ProPlanType[] = ["monthly", "annual", "lifetime"];
+const VALID_PLANS: ProPlanType[] = ["monthly", "annual"];
 
 /**
  * Creates a Lemon Squeezy hosted Checkout for the requested Pro plan and
@@ -69,6 +69,16 @@ export async function POST(request: NextRequest) {
       },
       productOptions: {
         redirectUrl: `${origin}/compte?checkout=success`,
+      },
+      // Themes Lemon Squeezy's own hosted page to match Asexcel's dark UI
+      // (the /checkout page below hands off here for the actual secure
+      // card/PayPal entry — see its comment for why that step can't be
+      // inlined as raw fields in our own code).
+      checkoutOptions: {
+        backgroundColor: "0B0F0D",
+        buttonColor: "1E8E5A",
+        primaryTextColor: "FFFFFF",
+        secondaryTextColor: "9CA3AF",
       },
     });
 

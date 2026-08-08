@@ -15,7 +15,6 @@ export const LEMON_SQUEEZY_STORE_ID = process.env.LEMON_SQUEEZY_STORE_ID ?? "";
 const VARIANT_ENV_VAR: Record<ProPlanType, string> = {
   monthly: "LEMON_SQUEEZY_VARIANT_MONTHLY",
   annual: "LEMON_SQUEEZY_VARIANT_ANNUAL",
-  lifetime: "LEMON_SQUEEZY_VARIANT_LIFETIME",
 };
 
 /** Resolves the configured Lemon Squeezy variant ID for a plan, from its env var. */

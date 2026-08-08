@@ -11,7 +11,7 @@ import { LOCALE_COOKIE, isLocale, negotiateLocale } from "@/lib/i18n/config";
 // /api/lemon-squeezy/webhook is also deliberately excluded — it's called
 // by Lemon Squeezy itself (no user session), and is secured by HMAC
 // signature verification instead (see its route handler).
-const PROTECTED_PREFIXES = ["/api/upload", "/compte"];
+const PROTECTED_PREFIXES = ["/api/upload", "/compte", "/checkout"];
 
 /** Sets the locale cookie from `Accept-Language` on first visit only — an
  * existing cookie (set automatically here, or manually via the footer

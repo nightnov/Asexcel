@@ -2,11 +2,11 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import TurnstileWidget from "./TurnstileWidget";
 import QuotaCounter from "./QuotaCounter";
 import QuotaModal from "./QuotaModal";
 import AuthModal from "./AuthModal";
-import ProCheckoutModal from "./ProCheckoutModal";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { detectLanguage } from "@/lib/excelFormulaTranslator";
 import { useDailyQuota, GUEST_DAILY_LIMIT } from "@/lib/useDailyQuota";
@@ -77,6 +77,7 @@ const markdownComponents = {
 export default function FormulaGenerator() {
   const { t } = useLocale();
   const tt = t.tools.generateur;
+  const router = useRouter();
 
   const MODE_TABS: { value: Mode; label: string }[] = [
     { value: "create", label: tt.tabCreate },
@@ -108,7 +109,6 @@ export default function FormulaGenerator() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showProCheckout, setShowProCheckout] = useState(false);
   const quota = useDailyQuota();
 
   const { formula: resultFormula, explanation: resultExplanation } = useMemo(
@@ -349,10 +349,9 @@ export default function FormulaGenerator() {
         memberLimit={MEMBER_DAILY_LIMIT}
         labels={t.quota}
         onCreateAccount={() => setShowAuthModal(true)}
-        onUpgrade={() => setShowProCheckout(true)}
+        onUpgrade={() => router.push("/checkout")}
       />
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
-      {showProCheckout && <ProCheckoutModal onClose={() => setShowProCheckout(false)} />}
     </div>
   );
 }

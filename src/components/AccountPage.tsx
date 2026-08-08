@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import LandingHeader from "@/components/LandingHeader";
-import ProCheckoutModal from "@/components/ProCheckoutModal";
 import { useLocale } from "@/components/LocaleProvider";
 import type { UserPlan, ProPlanType } from "@/types/database";
 
@@ -21,14 +20,12 @@ export default function AccountPage({ email, plan, planType }: AccountPageProps)
   const searchParams = useSearchParams();
   const checkoutSuccess = searchParams.get("checkout") === "success";
 
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
 
   const PLAN_TYPE_LABEL: Record<ProPlanType, string> = {
     monthly: ac.planTypeMonthly,
     annual: ac.planTypeAnnual,
-    lifetime: ac.planTypeLifetime,
   };
 
   async function handleManageBilling() {
@@ -77,36 +74,31 @@ export default function AccountPage({ email, plan, planType }: AccountPageProps)
           </div>
 
           {plan === "pro" ? (
-            planType !== "lifetime" && (
-              <>
-                <p className="mt-4 text-sm text-slate-500">{ac.manageBillingHint}</p>
-                <button
-                  type="button"
-                  onClick={handleManageBilling}
-                  disabled={portalLoading}
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60"
-                >
-                  {portalLoading && (
-                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  )}
-                  {ac.manageBilling}
-                </button>
-                {portalError && <p className="mt-2 text-sm text-red-600">{portalError}</p>}
-              </>
-            )
+            <>
+              <p className="mt-4 text-sm text-slate-500">{ac.manageBillingHint}</p>
+              <button
+                type="button"
+                onClick={handleManageBilling}
+                disabled={portalLoading}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60"
+              >
+                {portalLoading && (
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                )}
+                {ac.manageBilling}
+              </button>
+              {portalError && <p className="mt-2 text-sm text-red-600">{portalError}</p>}
+            </>
           ) : (
-            <button
-              type="button"
-              onClick={() => setShowUpgrade(true)}
+            <Link
+              href="/checkout"
               className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700"
             >
               {ac.upgradeCta}
-            </button>
+            </Link>
           )}
         </div>
       </div>
-
-      {showUpgrade && <ProCheckoutModal onClose={() => setShowUpgrade(false)} />}
     </div>
   );
 }

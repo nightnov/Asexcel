@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 import ChatMessage, { type ChatMessageData } from "./ChatMessage";
 import FileUpload from "./FileUpload";
@@ -9,7 +10,6 @@ import LandingHeader from "./LandingHeader";
 import QuotaCounter from "./QuotaCounter";
 import QuotaModal from "./QuotaModal";
 import AuthModal from "./AuthModal";
-import ProCheckoutModal from "./ProCheckoutModal";
 import { poppins, inter } from "@/lib/fonts";
 import landingStyles from "@/app/landing.module.css";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
@@ -25,6 +25,7 @@ const DEFAULT_FILE_PROMPT =
 export default function ChatWindow() {
   const { t } = useLocale();
   const tc = t.chat;
+  const router = useRouter();
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -32,7 +33,6 @@ export default function ChatWindow() {
   const [fileAnalysis, setFileAnalysis] = useState<FileAnalysis | null>(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showProCheckout, setShowProCheckout] = useState(false);
   const quota = useDailyQuota();
   // Turnstile tokens are single-use server-side; the widget re-issues a new
   // one automatically after each verification, which is why this is state
@@ -243,10 +243,9 @@ export default function ChatWindow() {
         memberLimit={MEMBER_DAILY_LIMIT}
         labels={t.quota}
         onCreateAccount={() => setShowAuthModal(true)}
-        onUpgrade={() => setShowProCheckout(true)}
+        onUpgrade={() => router.push("/checkout")}
       />
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
-      {showProCheckout && <ProCheckoutModal onClose={() => setShowProCheckout(false)} />}
     </div>
   );
 }

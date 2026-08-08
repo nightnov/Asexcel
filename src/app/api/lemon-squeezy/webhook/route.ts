@@ -57,21 +57,6 @@ export async function POST(request: NextRequest) {
 
   try {
     switch (eventName) {
-      // One-time purchase (our "lifetime" plan) — subscriptions instead fire
-      // subscription_created below, so this only ever fires for lifetime.
-      case "order_created": {
-        if (!userId || plan !== "lifetime" || payload.data.attributes.status !== "paid") break;
-        await admin
-          .from("profiles")
-          .update({
-            plan: "pro",
-            plan_type: "lifetime",
-            lemon_squeezy_customer_id: String(payload.data.attributes.customer_id ?? ""),
-          })
-          .eq("id", userId);
-        break;
-      }
-
       case "subscription_created": {
         if (!userId || !plan) break;
         await admin

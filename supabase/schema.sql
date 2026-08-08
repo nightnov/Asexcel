@@ -19,11 +19,11 @@ create table if not exists public.profiles (
   -- never set directly by client code.
   plan text not null default 'free' check (plan in ('free', 'pro')),
   -- Which Pro pricing option is active — null unless plan = 'pro'.
-  plan_type text check (plan_type in ('monthly', 'annual', 'lifetime')),
+  plan_type text check (plan_type in ('monthly', 'annual')),
   -- Lemon Squeezy identifiers, set once a checkout completes. Nullable: most
   -- users never touch billing. No card data is ever stored here or anywhere
   -- else in this schema — Lemon Squeezy (merchant of record) holds it, we
-  -- only keep IDs. subscription_id is null for lifetime (one-time) purchases.
+  -- only keep IDs.
   lemon_squeezy_customer_id text,
   lemon_squeezy_subscription_id text unique,
   created_at timestamptz not null default now()
@@ -32,7 +32,7 @@ create table if not exists public.profiles (
 -- Safe on repeat runs: adds columns if this table already existed before
 -- the free/Pro tier split, or before Lemon Squeezy billing, was introduced.
 alter table public.profiles add column if not exists plan text not null default 'free' check (plan in ('free', 'pro'));
-alter table public.profiles add column if not exists plan_type text check (plan_type in ('monthly', 'annual', 'lifetime'));
+alter table public.profiles add column if not exists plan_type text check (plan_type in ('monthly', 'annual'));
 alter table public.profiles add column if not exists lemon_squeezy_customer_id text;
 alter table public.profiles add column if not exists lemon_squeezy_subscription_id text unique;
 -- Drops columns from an earlier Stripe-based prototype of this feature, if present.
