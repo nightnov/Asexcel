@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Sparkles, Wrench, ListChecks, LifeBuoy, ArrowRight, type LucideIcon } from "lucide-react";
+import { Sparkles, Wrench, ListChecks, Headphones, ArrowRight, type LucideIcon } from "lucide-react";
 import styles from "./landing.module.css";
 import { poppins, inter } from "@/lib/fonts";
 import LandingHeader from "@/components/LandingHeader";
@@ -20,7 +20,7 @@ const GROUP_META: Record<ToolGroup, { icon: LucideIcon; iconClass: string }> = {
   ai: { icon: Sparkles, iconClass: "bg-emerald-50 text-emerald-600" },
   files: { icon: Wrench, iconClass: "bg-slate-100 text-slate-600" },
   fun: { icon: ListChecks, iconClass: "bg-slate-100 text-slate-600" },
-  support: { icon: LifeBuoy, iconClass: "bg-emerald-50 text-emerald-600" },
+  support: { icon: Headphones, iconClass: "bg-emerald-50 text-emerald-600" },
 };
 
 /** "ia" -> AI-powered tools, "fun" -> tests/games, "support" -> its own trust-building
@@ -181,12 +181,12 @@ function SupportHighlightCard({ tool }: { tool: Tool }) {
   return (
     <Link href={tool.href} className={styles.supportCard}>
       <span className={styles.supportIconWrap}>
-        <LifeBuoy className="h-6 w-6" strokeWidth={2} aria-hidden="true" />
+        <Headphones className="h-6 w-6" strokeWidth={2} aria-hidden="true" />
       </span>
-      <span className={styles.supportBody}>
-        <span className={styles.supportCardTitle}>{tool.title}</span>
-        <span className={styles.supportCardDesc}>{tool.description}</span>
-      </span>
+      <div className={styles.supportBody}>
+        <p className={styles.supportCardTitle}>{tool.title}</p>
+        <p className={styles.supportCardDesc}>{tool.description}</p>
+      </div>
       <span className={styles.supportCardCta}>
         {t.home.supportCta}
         <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />

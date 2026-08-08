@@ -624,15 +624,16 @@
 .supportCardTitle {
   font-family: var(--font-poppins), "Poppins", sans-serif;
   font-weight: 600;
-  font-size: 17px;
+  font-size: 16px;
   color: var(--ink);
-  margin-bottom: 4px;
+  margin: 0 0 4px;
 }
 
 .supportCardDesc {
   font-size: 14px;
   line-height: 1.5;
   color: var(--ink-soft);
+  margin: 0;
 }
 
 .supportCardCta {
