@@ -22,6 +22,7 @@ export interface Database {
           plan_type: ProPlanType | null;
           lemon_squeezy_customer_id: string | null;
           lemon_squeezy_subscription_id: string | null;
+          welcome_email_sent_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -33,6 +34,7 @@ export interface Database {
           plan_type?: ProPlanType | null;
           lemon_squeezy_customer_id?: string | null;
           lemon_squeezy_subscription_id?: string | null;
+          welcome_email_sent_at?: string | null;
           created_at?: string;
         };
         Update: Partial<{
@@ -43,6 +45,7 @@ export interface Database {
           plan_type: ProPlanType | null;
           lemon_squeezy_customer_id: string | null;
           lemon_squeezy_subscription_id: string | null;
+          welcome_email_sent_at: string | null;
         }>;
         Relationships: [];
       };
@@ -155,6 +158,28 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<{ status: "new" | "read" | "resolved" }>;
+        Relationships: [];
+      };
+      email_logs: {
+        Row: {
+          id: string;
+          category: "support" | "pro_confirmation" | "welcome";
+          recipient: string;
+          subject: string;
+          status: "sent" | "failed";
+          error: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          category: "support" | "pro_confirmation" | "welcome";
+          recipient: string;
+          subject: string;
+          status: "sent" | "failed";
+          error?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<{ status: "sent" | "failed"; error: string | null }>;
         Relationships: [];
       };
     };

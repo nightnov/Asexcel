@@ -20,10 +20,11 @@ export const COMPANY_INFO = {
    */
   supportInboxEmail: "nightnova2007@gmail.com",
   /**
-   * Resend's shared sandbox sender — works with no DNS setup, but Resend restricts
+   * Fallback sender when the EMAIL_FROM env var isn't set (see src/lib/email.ts) —
+   * Resend's shared sandbox sender, works with no DNS setup, but Resend restricts
    * delivery to the account owner's own address (see supportInboxEmail above).
-   * Once a real domain is verified at https://resend.com/domains, switch this to
-   * something like "Asexcel <support@yourdomain.com>" for unrestricted delivery.
+   * Once a real domain is verified at https://resend.com/domains, set EMAIL_FROM to
+   * something like "Asexcel <contact@asexcel.com>" for unrestricted delivery.
    */
   emailFromAddress: "Asexcel <onboarding@resend.dev>",
   /** ISO date, each legal page formats it for display. Bump this whenever a legal page's content changes. */

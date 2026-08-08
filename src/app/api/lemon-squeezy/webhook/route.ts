@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ProPlanType } from "@/lib/proPricing";
+import { sendEmail } from "@/lib/email";
+import { buildProConfirmationEmail } from "@/lib/emailTemplates";
 
 export const runtime = "nodejs";
 
@@ -68,6 +70,21 @@ export async function POST(request: NextRequest) {
             lemon_squeezy_subscription_id: payload.data.id,
           })
           .eq("id", userId);
+
+        // Best-effort — a failed confirmation e-mail must never fail the
+        // webhook itself (Lemon Squeezy retries on non-2xx, which would
+        // just re-run the DB update above for no benefit). The user's plan
+        // is already flipped to Pro at this point regardless of email outcome.
+        try {
+          const { data: userData } = await admin.auth.admin.getUserById(userId);
+          const recipient = userData.user?.email;
+          if (recipient) {
+            const { subject, html, text } = buildProConfirmationEmail(plan);
+            await sendEmail({ to: recipient, subject, html, text, category: "pro_confirmation" });
+          }
+        } catch (emailError) {
+          console.warn("Pro confirmation e-mail failed for user", userId, emailError);
+        }
         break;
       }
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { COMPANY_INFO } from "@/lib/companyConfig";
+import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -70,28 +70,21 @@ export async function POST(req: NextRequest) {
     console.warn("support_requests insert threw, logging request instead:", error, { message, email, category });
   }
 
-  try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    const { error } = await resend.emails.send({
-      from: COMPANY_INFO.emailFromAddress,
-      to: COMPANY_INFO.supportInboxEmail,
-      replyTo: email ?? undefined,
-      subject: `[Support Asexcel] ${CATEGORY_LABEL[category]}`,
-      html: `
-        <div style="font-family: sans-serif; font-size: 14px; color: #111;">
-          <p><strong>Catégorie :</strong> ${escapeHtml(CATEGORY_LABEL[category])}</p>
-          <p><strong>E-mail de contact :</strong> ${email ? escapeHtml(email) : "non renseigné"}</p>
-          <p><strong>Message :</strong></p>
-          <p style="white-space: pre-wrap; border-left: 3px solid #34D399; padding-left: 12px;">${escapeHtml(message)}</p>
-        </div>
-      `,
-    });
-    if (error) {
-      console.warn("Resend email send failed, request was still logged:", error, { message, email, category });
-    }
-  } catch (error) {
-    console.warn("Resend email send threw, request was still logged:", error, { message, email, category });
-  }
+  await sendEmail({
+    to: COMPANY_INFO.supportInboxEmail,
+    replyTo: email ?? undefined,
+    category: "support",
+    subject: `[Support Asexcel] ${CATEGORY_LABEL[category]}`,
+    html: `
+      <div style="font-family: sans-serif; font-size: 14px; color: #111;">
+        <p><strong>Catégorie :</strong> ${escapeHtml(CATEGORY_LABEL[category])}</p>
+        <p><strong>E-mail de contact :</strong> ${email ? escapeHtml(email) : "non renseigné"}</p>
+        <p><strong>Message :</strong></p>
+        <p style="white-space: pre-wrap; border-left: 3px solid #34D399; padding-left: 12px;">${escapeHtml(message)}</p>
+      </div>
+    `,
+    text: `Catégorie : ${CATEGORY_LABEL[category]}\nE-mail de contact : ${email ?? "non renseigné"}\n\nMessage :\n${message}`,
+  });
 
   return NextResponse.json({ ok: true });
 }

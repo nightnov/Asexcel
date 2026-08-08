@@ -26,6 +26,10 @@ create table if not exists public.profiles (
   -- only keep IDs.
   lemon_squeezy_customer_id text,
   lemon_squeezy_subscription_id text unique,
+  -- Set once the welcome e-mail has actually been sent (see
+  -- src/app/auth/callback/route.ts) so a returning user is never re-sent
+  -- one on every login — null means "not sent yet".
+  welcome_email_sent_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -35,6 +39,7 @@ alter table public.profiles add column if not exists plan text not null default 
 alter table public.profiles add column if not exists plan_type text check (plan_type in ('monthly', 'annual'));
 alter table public.profiles add column if not exists lemon_squeezy_customer_id text;
 alter table public.profiles add column if not exists lemon_squeezy_subscription_id text unique;
+alter table public.profiles add column if not exists welcome_email_sent_at timestamptz;
 -- Drops columns from an earlier Stripe-based prototype of this feature, if present.
 alter table public.profiles drop column if exists stripe_customer_id;
 alter table public.profiles drop column if exists stripe_subscription_id;
@@ -249,3 +254,23 @@ create table if not exists public.support_requests (
 );
 
 alter table public.support_requests enable row level security;
+
+-- ---------------------------------------------------------------------------
+-- email_logs: one row per outbound Resend send attempt (support replies, Pro
+-- confirmation, welcome), success or failure — replaces the old console.warn
+-- so an infra hiccup (bad key, sandbox restriction, quota) leaves a durable
+-- trace instead of silently vanishing the moment nobody tails server logs.
+-- Written exclusively by the service-role client (see src/lib/email.ts); no
+-- client-facing RLS policy is defined, same stance as support_requests.
+-- ---------------------------------------------------------------------------
+create table if not exists public.email_logs (
+  id uuid primary key default uuid_generate_v4(),
+  category text not null check (category in ('support', 'pro_confirmation', 'welcome')),
+  recipient text not null,
+  subject text not null,
+  status text not null check (status in ('sent', 'failed')),
+  error text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.email_logs enable row level security;
