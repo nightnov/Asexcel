@@ -25,6 +25,61 @@ function CheckIcon() {
   );
 }
 
+function AppleLogo() {
+  return (
+    <svg viewBox="0 0 14 17" className="h-4 w-3.5 shrink-0 text-black" fill="currentColor">
+      <path d="M11.6 8.9c0-2 1.6-2.9 1.7-3-1-1.4-2.5-1.6-3-1.6-1.3-.1-2.5.8-3.1.8-.6 0-1.6-.7-2.7-.7-1.4 0-2.7.8-3.4 2.1-1.5 2.5-.4 6.2 1 8.2.7 1 1.5 2.1 2.6 2 1-.1 1.4-.7 2.6-.7s1.6.7 2.7.7c1.1 0 1.8-1 2.5-2 .8-1.1 1.1-2.2 1.1-2.3-.1 0-2-.8-2-3.1v-.4Z" />
+      <path d="M9.7 2.7c.5-.7.9-1.6.8-2.5-.8 0-1.7.5-2.3 1.1-.5.6-1 1.5-.8 2.4.9.1 1.8-.4 2.3-1Z" />
+    </svg>
+  );
+}
+
+function CardTabIcon() {
+  return (
+    <svg viewBox="0 0 20 14" className="h-3.5 w-4 shrink-0" fill="none">
+      <rect x="0.75" y="0.75" width="18.5" height="12.5" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+      <rect x="0.75" y="3.6" width="18.5" height="2.3" fill="currentColor" />
+    </svg>
+  );
+}
+
+function PayPalTabIcon() {
+  return (
+    <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 shrink-0" fill="none">
+      <path d="M6.7 3.6h5.1c2.3 0 3.8 1.3 3.4 3.5-.4 2.4-2.2 3.8-4.6 3.8H8.6l-.8 4.8H5.2l1.5-12.1z" fill="#009cde" opacity="0.85" />
+      <path d="M8.1 5.3h5c2 0 3.4 1.1 3.1 3.2-.4 2.2-2 3.3-4.2 3.3H9.8l-.7 4.2H6.9l1.2-10.7z" fill="#003087" />
+    </svg>
+  );
+}
+
+function VisaBadge() {
+  return (
+    <span className="flex h-5 w-8 shrink-0 items-center justify-center rounded border border-white/15 bg-white/5">
+      <span className="text-[7px] font-extrabold italic tracking-tight text-white/60">VISA</span>
+    </span>
+  );
+}
+
+function MastercardBadge() {
+  return (
+    <span className="flex h-5 w-8 shrink-0 items-center justify-center rounded border border-white/15 bg-white/5">
+      <span className="flex -space-x-1.5">
+        <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
+        <span className="h-2.5 w-2.5 rounded-full bg-orange-400/70" />
+      </span>
+    </span>
+  );
+}
+
+function CvvBadge() {
+  return (
+    <span className="flex h-5 w-8 shrink-0 flex-col justify-center gap-0.5 rounded border border-white/15 bg-white/5 px-1 py-0.5">
+      <span className="h-1 w-full rounded-[1px] bg-white/30" />
+      <span className="self-end text-[6px] font-medium leading-none text-white/50">123</span>
+    </span>
+  );
+}
+
 export default function CheckoutPage({ email }: CheckoutPageProps) {
   const { t } = useLocale();
   const pp = t.pro;
@@ -35,7 +90,7 @@ export default function CheckoutPage({ email }: CheckoutPageProps) {
 
   const [plan, setPlan] = useState<ProPlanType>(initialPlan);
   const [payMethod, setPayMethod] = useState<PayMethod>("card");
-  const [renewalAck, setRenewalAck] = useState(false);
+  const [savePayment, setSavePayment] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -89,9 +144,10 @@ export default function CheckoutPage({ email }: CheckoutPageProps) {
             type="button"
             onClick={handleSubscribe}
             disabled={loading}
-            className="mt-3 flex h-12 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+            className="mt-3 flex h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-white transition hover:bg-white/90 disabled:opacity-50"
           >
-            {co.expressPayLabel}
+            <AppleLogo />
+            <span className="text-[17px] font-semibold text-black">Pay</span>
           </button>
 
           <div className="my-6 flex items-center gap-3">
@@ -104,19 +160,21 @@ export default function CheckoutPage({ email }: CheckoutPageProps) {
             <button
               type="button"
               onClick={() => setPayMethod("card")}
-              className={`rounded-md px-4 py-1.5 font-medium transition ${
+              className={`flex items-center gap-1.5 rounded-md px-4 py-1.5 font-medium transition ${
                 payMethod === "card" ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70"
               }`}
             >
+              <CardTabIcon />
               {co.cardTab}
             </button>
             <button
               type="button"
               onClick={() => setPayMethod("paypal")}
-              className={`rounded-md px-4 py-1.5 font-medium transition ${
+              className={`flex items-center gap-1.5 rounded-md px-4 py-1.5 font-medium transition ${
                 payMethod === "paypal" ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70"
               }`}
             >
+              <PayPalTabIcon />
               {co.paypalTab}
             </button>
           </div>
@@ -125,8 +183,12 @@ export default function CheckoutPage({ email }: CheckoutPageProps) {
             <div className="mt-4 space-y-3">
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-white/40">{co.cardNumberLabel}</label>
-                <div className="flex h-11 items-center rounded-lg border border-white/10 bg-white/[0.02] px-3.5">
+                <div className="flex h-11 items-center justify-between rounded-lg border border-white/10 bg-white/[0.02] px-3.5">
                   <span className="text-sm text-white/25">{co.cardNumberPlaceholder}</span>
+                  <span className="flex gap-1.5">
+                    <VisaBadge />
+                    <MastercardBadge />
+                  </span>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -138,8 +200,9 @@ export default function CheckoutPage({ email }: CheckoutPageProps) {
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-white/40">{co.cvvLabel}</label>
-                  <div className="flex h-11 items-center rounded-lg border border-white/10 bg-white/[0.02] px-3.5">
+                  <div className="flex h-11 items-center justify-between rounded-lg border border-white/10 bg-white/[0.02] px-3.5">
                     <span className="text-sm text-white/25">{co.cvvPlaceholder}</span>
+                    <CvvBadge />
                   </div>
                 </div>
               </div>
@@ -148,7 +211,15 @@ export default function CheckoutPage({ email }: CheckoutPageProps) {
             <p className="mt-4 text-xs leading-relaxed text-white/35">{co.secureFieldsNotice}</p>
           )}
 
-          <p className="mt-6 text-xs leading-relaxed text-white/35">{co.savePaymentLabel}</p>
+          <label className="mt-5 flex items-start gap-2.5 text-xs leading-relaxed text-white/45">
+            <input
+              type="checkbox"
+              checked={savePayment}
+              onChange={(e) => setSavePayment(e.target.checked)}
+              className="mt-0.5 h-3.5 w-3.5 rounded border-white/20 bg-transparent accent-white"
+            />
+            {co.savePaymentLabel}
+          </label>
 
           <p className="mt-3 text-xs leading-relaxed text-white/30">
             {co.legalConsentText.split("{terms}")[0]}
@@ -224,22 +295,12 @@ export default function CheckoutPage({ email }: CheckoutPageProps) {
             </div>
           </div>
 
-          <label className="mt-5 flex items-start gap-2.5 text-xs leading-relaxed text-white/40">
-            <input
-              type="checkbox"
-              checked={renewalAck}
-              onChange={(e) => setRenewalAck(e.target.checked)}
-              className="mt-0.5 h-3.5 w-3.5 rounded border-white/20 bg-transparent accent-white"
-            />
-            {co.autoRenewalCheckboxLabel}
-          </label>
-
           {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
 
           <button
             type="button"
             onClick={handleSubscribe}
-            disabled={!renewalAck || loading}
+            disabled={loading}
             className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/30 border-t-black" />}
