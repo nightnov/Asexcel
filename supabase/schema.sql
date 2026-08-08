@@ -15,25 +15,29 @@ create table if not exists public.profiles (
   daily_quota_used integer not null default 0,
   quota_reset_at date not null default current_date,
   -- 'pro' grants unlimited AI usage (see src/lib/quota.ts). Flipped by the
-  -- Stripe webhook (see src/app/api/stripe/webhook/route.ts), never set
-  -- directly by client code.
+  -- Lemon Squeezy webhook (see src/app/api/lemon-squeezy/webhook/route.ts),
+  -- never set directly by client code.
   plan text not null default 'free' check (plan in ('free', 'pro')),
   -- Which Pro pricing option is active — null unless plan = 'pro'.
   plan_type text check (plan_type in ('monthly', 'annual', 'lifetime')),
-  -- Stripe identifiers, set once a Checkout Session completes. Nullable:
-  -- most users never touch billing. No card data is ever stored here or
-  -- anywhere else in this schema — Stripe holds it, we only keep IDs.
-  stripe_customer_id text unique,
-  stripe_subscription_id text,
+  -- Lemon Squeezy identifiers, set once a checkout completes. Nullable: most
+  -- users never touch billing. No card data is ever stored here or anywhere
+  -- else in this schema — Lemon Squeezy (merchant of record) holds it, we
+  -- only keep IDs. subscription_id is null for lifetime (one-time) purchases.
+  lemon_squeezy_customer_id text,
+  lemon_squeezy_subscription_id text unique,
   created_at timestamptz not null default now()
 );
 
 -- Safe on repeat runs: adds columns if this table already existed before
--- the free/Pro tier split, or before Stripe billing, was introduced.
+-- the free/Pro tier split, or before Lemon Squeezy billing, was introduced.
 alter table public.profiles add column if not exists plan text not null default 'free' check (plan in ('free', 'pro'));
 alter table public.profiles add column if not exists plan_type text check (plan_type in ('monthly', 'annual', 'lifetime'));
-alter table public.profiles add column if not exists stripe_customer_id text unique;
-alter table public.profiles add column if not exists stripe_subscription_id text;
+alter table public.profiles add column if not exists lemon_squeezy_customer_id text;
+alter table public.profiles add column if not exists lemon_squeezy_subscription_id text unique;
+-- Drops columns from an earlier Stripe-based prototype of this feature, if present.
+alter table public.profiles drop column if exists stripe_customer_id;
+alter table public.profiles drop column if exists stripe_subscription_id;
 
 alter table public.profiles enable row level security;
 

@@ -12,7 +12,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@stripe/stripe-js": "^9.13.0",
+    "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.45.4",
     "@zip.js/zip.js": "^2.8.34",
@@ -26,7 +26,6 @@
     "react-markdown": "^10.1.0",
     "resend": "^6.18.1",
     "server-only": "^0.0.1",
-    "stripe": "^22.4.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^3.23.8"
   },

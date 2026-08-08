@@ -20,8 +20,8 @@ export interface Database {
           quota_reset_at: string;
           plan: UserPlan;
           plan_type: ProPlanType | null;
-          stripe_customer_id: string | null;
-          stripe_subscription_id: string | null;
+          lemon_squeezy_customer_id: string | null;
+          lemon_squeezy_subscription_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -31,8 +31,8 @@ export interface Database {
           quota_reset_at?: string;
           plan?: UserPlan;
           plan_type?: ProPlanType | null;
-          stripe_customer_id?: string | null;
-          stripe_subscription_id?: string | null;
+          lemon_squeezy_customer_id?: string | null;
+          lemon_squeezy_subscription_id?: string | null;
           created_at?: string;
         };
         Update: Partial<{
@@ -41,8 +41,8 @@ export interface Database {
           quota_reset_at: string;
           plan: UserPlan;
           plan_type: ProPlanType | null;
-          stripe_customer_id: string | null;
-          stripe_subscription_id: string | null;
+          lemon_squeezy_customer_id: string | null;
+          lemon_squeezy_subscription_id: string | null;
         }>;
         Relationships: [];
       };

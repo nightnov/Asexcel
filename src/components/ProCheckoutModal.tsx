@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale } from "@/components/LocaleProvider";
-import { PRO_PRICING, ANNUAL_MONTHLY_EQUIVALENT, ANNUAL_SAVINGS_PERCENT, type ProPlanType } from "@/lib/stripeConfig";
+import { PRO_PRICING, ANNUAL_MONTHLY_EQUIVALENT, ANNUAL_SAVINGS_PERCENT, type ProPlanType } from "@/lib/proPricing";
 
 interface ProCheckoutModalProps {
   onClose: () => void;
@@ -35,7 +35,7 @@ export default function ProCheckoutModal({ onClose }: ProCheckoutModalProps) {
     setLoadingPlan(plan);
     setError(null);
     try {
-      const res = await fetch("/api/stripe/checkout", {
+      const res = await fetch("/api/lemon-squeezy/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),

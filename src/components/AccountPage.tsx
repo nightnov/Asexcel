@@ -35,7 +35,7 @@ export default function AccountPage({ email, plan, planType }: AccountPageProps)
     setPortalLoading(true);
     setPortalError(null);
     try {
-      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      const res = await fetch("/api/lemon-squeezy/portal", { method: "POST" });
       const data = await res.json();
       if (!res.ok || !data.url) {
         throw new Error(data.error ?? ac.portalError);
@@ -77,21 +77,23 @@ export default function AccountPage({ email, plan, planType }: AccountPageProps)
           </div>
 
           {plan === "pro" ? (
-            <>
-              <p className="mt-4 text-sm text-slate-500">{ac.manageBillingHint}</p>
-              <button
-                type="button"
-                onClick={handleManageBilling}
-                disabled={portalLoading}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60"
-              >
-                {portalLoading && (
-                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                )}
-                {ac.manageBilling}
-              </button>
-              {portalError && <p className="mt-2 text-sm text-red-600">{portalError}</p>}
-            </>
+            planType !== "lifetime" && (
+              <>
+                <p className="mt-4 text-sm text-slate-500">{ac.manageBillingHint}</p>
+                <button
+                  type="button"
+                  onClick={handleManageBilling}
+                  disabled={portalLoading}
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60"
+                >
+                  {portalLoading && (
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  )}
+                  {ac.manageBilling}
+                </button>
+                {portalError && <p className="mt-2 text-sm text-red-600">{portalError}</p>}
+              </>
+            )
           ) : (
             <button
               type="button"
