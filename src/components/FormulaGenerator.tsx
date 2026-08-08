@@ -6,7 +6,7 @@ import TurnstileWidget from "./TurnstileWidget";
 import QuotaCounter from "./QuotaCounter";
 import QuotaModal from "./QuotaModal";
 import AuthModal from "./AuthModal";
-import WaitlistModal from "./WaitlistModal";
+import ProCheckoutModal from "./ProCheckoutModal";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { detectLanguage } from "@/lib/excelFormulaTranslator";
 import { useDailyQuota, GUEST_DAILY_LIMIT } from "@/lib/useDailyQuota";
@@ -108,7 +108,7 @@ export default function FormulaGenerator() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showWaitlistModal, setShowWaitlistModal] = useState(false);
+  const [showProCheckout, setShowProCheckout] = useState(false);
   const quota = useDailyQuota();
 
   const { formula: resultFormula, explanation: resultExplanation } = useMemo(
@@ -349,10 +349,10 @@ export default function FormulaGenerator() {
         memberLimit={MEMBER_DAILY_LIMIT}
         labels={t.quota}
         onCreateAccount={() => setShowAuthModal(true)}
-        onUpgrade={() => setShowWaitlistModal(true)}
+        onUpgrade={() => setShowProCheckout(true)}
       />
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
-      {showWaitlistModal && <WaitlistModal onClose={() => setShowWaitlistModal(false)} />}
+      {showProCheckout && <ProCheckoutModal onClose={() => setShowProCheckout(false)} />}
     </div>
   );
 }

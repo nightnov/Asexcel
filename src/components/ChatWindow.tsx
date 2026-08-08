@@ -9,7 +9,7 @@ import LandingHeader from "./LandingHeader";
 import QuotaCounter from "./QuotaCounter";
 import QuotaModal from "./QuotaModal";
 import AuthModal from "./AuthModal";
-import WaitlistModal from "./WaitlistModal";
+import ProCheckoutModal from "./ProCheckoutModal";
 import { poppins, inter } from "@/lib/fonts";
 import landingStyles from "@/app/landing.module.css";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
@@ -32,7 +32,7 @@ export default function ChatWindow() {
   const [fileAnalysis, setFileAnalysis] = useState<FileAnalysis | null>(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showWaitlistModal, setShowWaitlistModal] = useState(false);
+  const [showProCheckout, setShowProCheckout] = useState(false);
   const quota = useDailyQuota();
   // Turnstile tokens are single-use server-side; the widget re-issues a new
   // one automatically after each verification, which is why this is state
@@ -243,10 +243,10 @@ export default function ChatWindow() {
         memberLimit={MEMBER_DAILY_LIMIT}
         labels={t.quota}
         onCreateAccount={() => setShowAuthModal(true)}
-        onUpgrade={() => setShowWaitlistModal(true)}
+        onUpgrade={() => setShowProCheckout(true)}
       />
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
-      {showWaitlistModal && <WaitlistModal onClose={() => setShowWaitlistModal(false)} />}
+      {showProCheckout && <ProCheckoutModal onClose={() => setShowProCheckout(false)} />}
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { useState } from "react";
 import styles from "@/app/landing.module.css";
 import { poppins, inter } from "@/lib/fonts";
 import LandingFooter from "@/components/LandingFooter";
-import WaitlistModal from "@/components/WaitlistModal";
+import ProCheckoutModal from "@/components/ProCheckoutModal";
 import AuthModal from "@/components/AuthModal";
 import { useLocale } from "@/components/LocaleProvider";
 
@@ -101,9 +101,9 @@ export default function TarifsPage() {
             </div>
 
             {/* Pro */}
-            <div className="flex flex-col rounded-3xl border border-dashed border-white/15 bg-white/[0.02] p-7 backdrop-blur-xl">
+            <div className="flex flex-col rounded-3xl border border-white/10 bg-white/[0.04] p-7 shadow-2xl backdrop-blur-xl">
               <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-white/70">
-                {p.soonBadge}
+                {p.proBadge}
               </span>
               <div className="mt-4 font-serif text-lg font-semibold text-white">{p.proName}</div>
               <div className="mt-1 text-2xl font-bold text-white">{p.proPriceLabel}</div>
@@ -124,7 +124,7 @@ export default function TarifsPage() {
               <button
                 type="button"
                 onClick={() => setShowModal(true)}
-                className="mt-6 flex h-11 w-full items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white/60 transition hover:bg-white/5 hover:text-white"
+                className="mt-6 flex h-11 w-full items-center justify-center rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44]"
               >
                 {p.proCta}
               </button>
@@ -135,7 +135,7 @@ export default function TarifsPage() {
 
       <LandingFooter dark />
 
-      {showModal && <WaitlistModal onClose={() => setShowModal(false)} />}
+      {showModal && <ProCheckoutModal onClose={() => setShowModal(false)} />}
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );

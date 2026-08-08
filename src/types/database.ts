@@ -1,6 +1,7 @@
 export type FileStatus = "uploaded" | "processing" | "ready" | "error";
 export type MessageRole = "user" | "assistant" | "system";
 export type UserPlan = "free" | "pro";
+export type ProPlanType = "monthly" | "annual" | "lifetime";
 
 export interface Database {
   // Required by @supabase/supabase-js's typed-client generics (matches the
@@ -18,6 +19,9 @@ export interface Database {
           daily_quota_used: number;
           quota_reset_at: string;
           plan: UserPlan;
+          plan_type: ProPlanType | null;
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -26,6 +30,9 @@ export interface Database {
           daily_quota_used?: number;
           quota_reset_at?: string;
           plan?: UserPlan;
+          plan_type?: ProPlanType | null;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
           created_at?: string;
         };
         Update: Partial<{
@@ -33,6 +40,9 @@ export interface Database {
           daily_quota_used: number;
           quota_reset_at: string;
           plan: UserPlan;
+          plan_type: ProPlanType | null;
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
         }>;
         Relationships: [];
       };
