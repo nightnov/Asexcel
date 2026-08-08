@@ -585,6 +585,89 @@
   color: var(--ink-soft);
 }
 
+/* ---------- Support highlight card ---------- */
+
+.supportCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--green-tint);
+  border: 1px solid #CBEADA;
+  border-radius: 18px;
+  padding: 26px 28px;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.supportCard:hover {
+  box-shadow: 0 16px 32px -18px rgba(30, 142, 90, 0.3);
+  transform: translateY(-2px);
+}
+
+.supportIconWrap {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green-deep);
+  box-shadow: 0 6px 16px -8px rgba(30, 142, 90, 0.35);
+}
+
+.supportBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.supportCardTitle {
+  font-family: var(--font-poppins), "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.supportCardDesc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.supportCardCta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green);
+  color: var(--white);
+  font-family: var(--font-inter), "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 12px;
+  white-space: nowrap;
+  transition: background 0.2s ease;
+}
+
+.supportCardCta:hover {
+  background: var(--green-deep);
+}
+
+@media (max-width: 640px) {
+  .supportCard {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .supportCardCta {
+    align-self: stretch;
+    justify-content: center;
+  }
+}
+
 /* Per-icon hover micro-animations */
 @keyframes anim-wiggle {
   0%, 100% { transform: rotate(0deg); }

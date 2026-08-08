@@ -78,7 +78,8 @@ export const dictionaries = {
         support: { title: "Questions, Requêtes & Problèmes", description: "Besoin d'aide ? Consultez la FAQ rapide ou signalez un problème directement à l'équipe." },
       },
       badgeNouveau: "Nouveau",
-      toolGroups: { ai: "Outils Intelligents (Propulsés par l'IA)", files: "Utilitaires & Fichiers (Sans IA)", fun: "Tests & Évaluations" },
+      toolGroups: { ai: "Outils Intelligents (Propulsés par l'IA)", files: "Utilitaires & Fichiers (Sans IA)", fun: "Tests & Évaluations", support: "Assistance & Support" },
+      supportCta: "Contacter le support",
       steps: [
         { title: "Collez ou déposez", desc: "Vos données depuis Excel, un CSV, ou un fichier glissé directement sur la page." },
         { title: "Choisissez l'outil", desc: "Nettoyage, traduction de formule, conversion. Un clic suffit." },
@@ -770,7 +771,8 @@ export const dictionaries = {
         support: { title: "Questions, Requests & Issues", description: "Need help? Check the quick FAQ or report an issue directly to the team." },
       },
       badgeNouveau: "New",
-      toolGroups: { ai: "Smart Tools (AI-Powered)", files: "Utilities & Files (No AI)", fun: "Tests & Assessments" },
+      toolGroups: { ai: "Smart Tools (AI-Powered)", files: "Utilities & Files (No AI)", fun: "Tests & Assessments", support: "Help & Support" },
+      supportCta: "Contact support",
       steps: [
         { title: "Paste or drop", desc: "Your data from Excel, a CSV, or a file dropped directly on the page." },
         { title: "Pick a tool", desc: "Cleaning, formula translation, conversion. One click is enough." },
@@ -1462,7 +1464,8 @@ export const dictionaries = {
         support: { title: "Preguntas, Solicitudes y Problemas", description: "¿Necesitas ayuda? Consulta la FAQ rápida o informa un problema directamente al equipo." },
       },
       badgeNouveau: "Nuevo",
-      toolGroups: { ai: "Herramientas Inteligentes (Con IA)", files: "Utilidades y Archivos (Sin IA)", fun: "Pruebas y Evaluaciones" },
+      toolGroups: { ai: "Herramientas Inteligentes (Con IA)", files: "Utilidades y Archivos (Sin IA)", fun: "Pruebas y Evaluaciones", support: "Ayuda y Soporte" },
+      supportCta: "Contactar con soporte",
       steps: [
         { title: "Pega o suelta", desc: "Tus datos desde Excel, un CSV, o un archivo arrastrado directamente a la página." },
         { title: "Elige la herramienta", desc: "Limpieza, traducción de fórmulas, conversión. Un clic es suficiente." },
@@ -2154,7 +2157,8 @@ export const dictionaries = {
         support: { title: "Fragen, Anfragen & Probleme", description: "Brauchen Sie Hilfe? Sehen Sie sich die kurze FAQ an oder melden Sie ein Problem direkt dem Team." },
       },
       badgeNouveau: "Neu",
-      toolGroups: { ai: "Intelligente Tools (KI-gestützt)", files: "Dienstprogramme & Dateien (Ohne KI)", fun: "Tests & Bewertungen" },
+      toolGroups: { ai: "Intelligente Tools (KI-gestützt)", files: "Dienstprogramme & Dateien (Ohne KI)", fun: "Tests & Bewertungen", support: "Hilfe & Support" },
+      supportCta: "Support kontaktieren",
       steps: [
         { title: "Einfügen oder ablegen", desc: "Ihre Daten aus Excel, einer CSV-Datei, oder eine Datei direkt auf die Seite gezogen." },
         { title: "Werkzeug wählen", desc: "Bereinigung, Formelübersetzung, Konvertierung. Ein Klick genügt." },
@@ -2846,7 +2850,8 @@ export const dictionaries = {
         support: { title: "Perguntas, Solicitações e Problemas", description: "Precisa de ajuda? Consulte a FAQ rápida ou relate um problema diretamente à equipe." },
       },
       badgeNouveau: "Novo",
-      toolGroups: { ai: "Ferramentas Inteligentes (Com IA)", files: "Utilitários e Arquivos (Sem IA)", fun: "Testes e Avaliações" },
+      toolGroups: { ai: "Ferramentas Inteligentes (Com IA)", files: "Utilitários e Arquivos (Sem IA)", fun: "Testes e Avaliações", support: "Ajuda e Suporte" },
+      supportCta: "Contatar suporte",
       steps: [
         { title: "Cole ou solte", desc: "Seus dados do Excel, um CSV, ou um arquivo solto diretamente na página." },
         { title: "Escolha a ferramenta", desc: "Limpeza, tradução de fórmula, conversão. Um clique é suficiente." },
@@ -3538,7 +3543,8 @@ export const dictionaries = {
         support: { title: "الأسئلة والطلبات والمشاكل", description: "هل تحتاج مساعدة؟ راجع الأسئلة الشائعة السريعة أو أبلغ عن مشكلة مباشرة إلى الفريق." },
       },
       badgeNouveau: "جديد",
-      toolGroups: { ai: "أدوات ذكية (مدعومة بالذكاء الاصطناعي)", files: "أدوات مساعدة وملفات (بدون ذكاء اصطناعي)", fun: "اختبارات وتقييمات" },
+      toolGroups: { ai: "أدوات ذكية (مدعومة بالذكاء الاصطناعي)", files: "أدوات مساعدة وملفات (بدون ذكاء اصطناعي)", fun: "اختبارات وتقييمات", support: "المساعدة والدعم" },
+      supportCta: "التواصل مع الدعم",
       steps: [
         { title: "الصق أو أفلت", desc: "بياناتك من Excel أو ملف CSV، أو ملف تم إفلاته مباشرة على الصفحة." },
         { title: "اختر الأداة", desc: "التنظيف، ترجمة الصيغ، التحويل. نقرة واحدة كافية." },
@@ -4230,7 +4236,8 @@ export const dictionaries = {
         support: { title: "Domande, Richieste e Problemi", description: "Hai bisogno di aiuto? Consulta la FAQ rapida o segnala un problema direttamente al team." },
       },
       badgeNouveau: "Nuovo",
-      toolGroups: { ai: "Strumenti Intelligenti (Basati su IA)", files: "Utilità e File (Senza IA)", fun: "Test e Valutazioni" },
+      toolGroups: { ai: "Strumenti Intelligenti (Basati su IA)", files: "Utilità e File (Senza IA)", fun: "Test e Valutazioni", support: "Assistenza e Supporto" },
+      supportCta: "Contatta il supporto",
       steps: [
         { title: "Incolla o trascina", desc: "I tuoi dati da Excel, un CSV, o un file trascinato direttamente sulla pagina." },
         { title: "Scegli lo strumento", desc: "Pulizia, traduzione di formule, conversione. Basta un clic." },
@@ -4922,7 +4929,8 @@ export const dictionaries = {
         support: { title: "Vragen, Verzoeken & Problemen", description: "Hulp nodig? Bekijk de snelle FAQ of meld een probleem rechtstreeks aan het team." },
       },
       badgeNouveau: "Nieuw",
-      toolGroups: { ai: "Slimme Tools (Met AI)", files: "Hulpmiddelen & Bestanden (Zonder AI)", fun: "Tests & Beoordelingen" },
+      toolGroups: { ai: "Slimme Tools (Met AI)", files: "Hulpmiddelen & Bestanden (Zonder AI)", fun: "Tests & Beoordelingen", support: "Hulp & Ondersteuning" },
+      supportCta: "Contact opnemen met support",
       steps: [
         { title: "Plak of sleep", desc: "Je gegevens uit Excel, een CSV, of een bestand direct op de pagina gesleept." },
         { title: "Kies de tool", desc: "Opschonen, formulevertaling, conversie. Eén klik is genoeg." },
@@ -5614,7 +5622,8 @@ export const dictionaries = {
         support: { title: "Pytania, Prośby i Problemy", description: "Potrzebujesz pomocy? Sprawdź szybkie FAQ lub zgłoś problem bezpośrednio zespołowi." },
       },
       badgeNouveau: "Nowość",
-      toolGroups: { ai: "Inteligentne Narzędzia (Oparte na AI)", files: "Narzędzia i Pliki (Bez AI)", fun: "Testy i Oceny" },
+      toolGroups: { ai: "Inteligentne Narzędzia (Oparte na AI)", files: "Narzędzia i Pliki (Bez AI)", fun: "Testy i Oceny", support: "Pomoc i wsparcie" },
+      supportCta: "Skontaktuj się z pomocą",
       steps: [
         { title: "Wklej lub upuść", desc: "Twoje dane z Excela, plik CSV, lub plik przeciągnięty bezpośrednio na stronę." },
         { title: "Wybierz narzędzie", desc: "Czyszczenie, tłumaczenie formuł, konwersja. Wystarczy jedno kliknięcie." },
@@ -6306,7 +6315,8 @@ export const dictionaries = {
         support: { title: "Sorular, Talepler ve Sorunlar", description: "Yardıma mı ihtiyacınız var? Hızlı SSS'ye bakın veya sorunu doğrudan ekibe bildirin." },
       },
       badgeNouveau: "Yeni",
-      toolGroups: { ai: "Akıllı Araçlar (Yapay Zeka Destekli)", files: "Yardımcı Araçlar ve Dosyalar (Yapay Zeka Yok)", fun: "Testler ve Değerlendirmeler" },
+      toolGroups: { ai: "Akıllı Araçlar (Yapay Zeka Destekli)", files: "Yardımcı Araçlar ve Dosyalar (Yapay Zeka Yok)", fun: "Testler ve Değerlendirmeler", support: "Yardım ve Destek" },
+      supportCta: "Destek ile iletişime geç",
       steps: [
         { title: "Yapıştırın veya bırakın", desc: "Excel'den, bir CSV'den verileriniz veya doğrudan sayfaya bırakılan bir dosya." },
         { title: "Aracı seçin", desc: "Temizleme, formül çevirisi, dönüştürme. Tek bir tık yeterli." },
@@ -6998,7 +7008,8 @@ export const dictionaries = {
         support: { title: "Вопросы, запросы и проблемы", description: "Нужна помощь? Ознакомьтесь с кратким FAQ или сообщите о проблеме прямо команде." },
       },
       badgeNouveau: "Новинка",
-      toolGroups: { ai: "Умные инструменты (На основе ИИ)", files: "Утилиты и файлы (Без ИИ)", fun: "Тесты и оценки" },
+      toolGroups: { ai: "Умные инструменты (На основе ИИ)", files: "Утилиты и файлы (Без ИИ)", fun: "Тесты и оценки", support: "Помощь и поддержка" },
+      supportCta: "Связаться с поддержкой",
       steps: [
         { title: "Вставьте или перетащите", desc: "Ваши данные из Excel, CSV-файла или файл, перетащенный прямо на страницу." },
         { title: "Выберите инструмент", desc: "Очистка, перевод формул, конвертация. Достаточно одного клика." },
@@ -7690,7 +7701,8 @@ export const dictionaries = {
         support: { title: "質問・お問い合わせ・不具合報告", description: "お困りですか？よくある質問をご確認いただくか、チームに直接問題を報告してください。" },
       },
       badgeNouveau: "新着",
-      toolGroups: { ai: "スマートツール（AI搭載）", files: "ユーティリティ＆ファイル（AIなし）", fun: "テスト＆評価" },
+      toolGroups: { ai: "スマートツール（AI搭載）", files: "ユーティリティ＆ファイル（AIなし）", fun: "テスト＆評価", support: "ヘルプ＆サポート" },
+      supportCta: "サポートに問い合わせる",
       steps: [
         { title: "貼り付けまたはドロップ", desc: "Excelやcsvからのデータ、またはページに直接ドロップしたファイル。" },
         { title: "ツールを選択", desc: "クリーニング、数式翻訳、変換。ワンクリックで完了。" },
@@ -8382,7 +8394,8 @@ export const dictionaries = {
         support: { title: "问题、请求与故障反馈", description: "需要帮助？查看快速常见问题，或直接向团队反馈问题。" },
       },
       badgeNouveau: "新",
-      toolGroups: { ai: "智能工具（AI 驱动）", files: "实用工具与文件（无 AI）", fun: "测试与评估" },
+      toolGroups: { ai: "智能工具（AI 驱动）", files: "实用工具与文件（无 AI）", fun: "测试与评估", support: "帮助与支持" },
+      supportCta: "联系支持",
       steps: [
         { title: "粘贴或拖放", desc: "来自 Excel、CSV 的数据，或直接拖放到页面上的文件。" },
         { title: "选择工具", desc: "清理、公式翻译、转换。只需一次点击。" },
@@ -9074,7 +9087,8 @@ export const dictionaries = {
         support: { title: "질문, 요청 및 문제", description: "도움이 필요하신가요? 빠른 FAQ를 확인하거나 팀에 직접 문제를 알려주세요." },
       },
       badgeNouveau: "신규",
-      toolGroups: { ai: "스마트 도구 (AI 기반)", files: "유틸리티 및 파일 (AI 미포함)", fun: "테스트 및 평가" },
+      toolGroups: { ai: "스마트 도구 (AI 기반)", files: "유틸리티 및 파일 (AI 미포함)", fun: "테스트 및 평가", support: "도움말 및 지원" },
+      supportCta: "지원팀에 문의",
       steps: [
         { title: "붙여넣기 또는 드롭", desc: "Excel, CSV 파일의 데이터 또는 페이지에 직접 드롭한 파일." },
         { title: "도구 선택", desc: "정리, 수식 번역, 변환. 클릭 한 번이면 충분합니다." },

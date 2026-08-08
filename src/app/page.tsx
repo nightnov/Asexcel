@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Sparkles, Wrench, ListChecks, LifeBuoy, ArrowRight, type LucideIcon } from "lucide-react";
 import styles from "./landing.module.css";
 import { poppins, inter } from "@/lib/fonts";
 import LandingHeader from "@/components/LandingHeader";
@@ -12,20 +13,22 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 
 type ToolCat = "clean" | "translate" | "files" | "ia" | "fun" | "support";
 
-/** The 3 dashboard groups the tool grid is organized under (see groupOf below). */
-type ToolGroup = "ai" | "files" | "fun";
-const GROUP_ORDER: ToolGroup[] = ["ai", "files", "fun"];
-const GROUP_BADGE_CLASSES: Record<ToolGroup, string> = {
-  ai: "bg-violet-50 text-violet-700 border-violet-200",
-  files: "bg-sky-50 text-sky-700 border-sky-200",
-  fun: "bg-amber-50 text-amber-700 border-amber-200",
+/** The 4 dashboard groups the tool grid is organized under (see groupOf below). */
+type ToolGroup = "ai" | "files" | "fun" | "support";
+const GROUP_ORDER: ToolGroup[] = ["ai", "files", "fun", "support"];
+const GROUP_META: Record<ToolGroup, { icon: LucideIcon; iconClass: string }> = {
+  ai: { icon: Sparkles, iconClass: "bg-emerald-50 text-emerald-600" },
+  files: { icon: Wrench, iconClass: "bg-slate-100 text-slate-600" },
+  fun: { icon: ListChecks, iconClass: "bg-slate-100 text-slate-600" },
+  support: { icon: LifeBuoy, iconClass: "bg-emerald-50 text-emerald-600" },
 };
-const GROUP_ICON: Record<ToolGroup, string> = { ai: "🤖", files: "🗂️", fun: "🎯" };
 
-/** "ia" -> AI-powered tools, "fun" -> tests/games, everything else (clean/translate/files/support) -> plain utilities. */
+/** "ia" -> AI-powered tools, "fun" -> tests/games, "support" -> its own trust-building
+ * section, everything else (clean/translate/files) -> plain utilities. */
 function groupOf(cat: ToolCat): ToolGroup {
   if (cat === "ia") return "ai";
   if (cat === "fun") return "fun";
+  if (cat === "support") return "support";
   return "files";
 }
 
@@ -173,6 +176,25 @@ function MockSheet() {
   );
 }
 
+function SupportHighlightCard({ tool }: { tool: Tool }) {
+  const { t } = useLocale();
+  return (
+    <Link href={tool.href} className={styles.supportCard}>
+      <span className={styles.supportIconWrap}>
+        <LifeBuoy className="h-6 w-6" strokeWidth={2} aria-hidden="true" />
+      </span>
+      <span className={styles.supportBody}>
+        <span className={styles.supportCardTitle}>{tool.title}</span>
+        <span className={styles.supportCardDesc}>{tool.description}</span>
+      </span>
+      <span className={styles.supportCardCta}>
+        {t.home.supportCta}
+        <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+      </span>
+    </Link>
+  );
+}
+
 function ToolCard({ tool, index }: { tool: Tool; index: number }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const [visible, setVisible] = useState(false);
@@ -286,19 +308,25 @@ export default function HomePage(): ReactNode {
                 if (groupTools.length === 0) return null;
                 const startIndex = runningIndex;
                 runningIndex += groupTools.length;
+                const meta = GROUP_META[group];
+                const GroupIcon = meta.icon;
                 return (
                   <div key={group} className="mb-10 last:mb-0">
-                    <div
-                      className={`mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold ${GROUP_BADGE_CLASSES[group]}`}
-                    >
-                      <span aria-hidden="true">{GROUP_ICON[group]}</span>
+                    <div className="mb-4 inline-flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700">
+                      <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${meta.iconClass}`}>
+                        <GroupIcon className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                      </span>
                       {t.home.toolGroups[group]}
                     </div>
-                    <div className={styles.toolsGrid}>
-                      {groupTools.map((tool, i) => (
-                        <ToolCard tool={tool} index={startIndex + i} key={tool.id} />
-                      ))}
-                    </div>
+                    {group === "support" ? (
+                      <SupportHighlightCard tool={groupTools[0]} />
+                    ) : (
+                      <div className={styles.toolsGrid}>
+                        {groupTools.map((tool, i) => (
+                          <ToolCard tool={tool} index={startIndex + i} key={tool.id} />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               });
