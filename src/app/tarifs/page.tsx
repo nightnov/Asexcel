@@ -43,7 +43,7 @@ export default function TarifsPage() {
                 {p.currentPlanBadge}
               </span>
               <div className="mt-4 font-serif text-lg font-semibold text-white">{p.guestName}</div>
-              <div className="mt-1 text-2xl font-bold text-white">{p.freePriceLabel}</div>
+              <div className="mt-1 text-2xl font-bold text-white">{p.guestPriceLabel}</div>
               <ul className="mt-5 flex-1 space-y-2.5 text-sm leading-relaxed text-white/60">
                 <li className="flex gap-2">
                   <span className="text-[#34D399]">✓</span>
@@ -72,7 +72,7 @@ export default function TarifsPage() {
                 {p.popularBadge}
               </span>
               <div className="mt-4 font-serif text-lg font-semibold text-white">{p.memberName}</div>
-              <div className="mt-1 text-2xl font-bold text-white">{p.freePriceLabel}</div>
+              <div className="mt-1 text-2xl font-bold text-white">{p.memberPriceLabel}</div>
               <ul className="mt-5 flex-1 space-y-2.5 text-sm leading-relaxed text-white/60">
                 <li className="flex gap-2">
                   <span className="text-[#34D399]">✓</span>

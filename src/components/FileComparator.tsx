@@ -2,6 +2,8 @@
 
 import { useRef, useState, type DragEvent } from "react";
 import { validateExcelFile } from "@/lib/validation";
+import { usePlan } from "@/lib/usePlan";
+import { fileSizeLimitBytes, buildTooLargeMessage } from "@/lib/fileSizeLimits";
 import {
   getSheetNames,
   compareFiles,
@@ -37,6 +39,9 @@ function pickMatchingSheet(names: string[], preferred: string | null): string {
 export default function FileComparator() {
   const { t } = useLocale();
   const tt = t.tools.comparateur;
+  const fl = t.fileLimits;
+  const { plan } = usePlan();
+  const maxFileSize = fileSizeLimitBytes(plan);
 
   const STATUS_LABELS: Record<DiffStatus, string> = {
     modified: tt.statusModified,
@@ -63,9 +68,13 @@ export default function FileComparator() {
 
   async function handleFileSelected(slot: Slot, file: File | undefined) {
     if (!file) return;
-    const validation = validateExcelFile(file);
+    const validation = validateExcelFile(file, maxFileSize);
     if (!validation.ok) {
-      setError(`${file.name} : ${validation.error}`);
+      setError(
+        validation.sizeExceeded
+          ? buildTooLargeMessage(fl, plan, validation.sizeExceeded.limitBytes, file.name)
+          : `${file.name} : ${validation.error}`
+      );
       return;
     }
 

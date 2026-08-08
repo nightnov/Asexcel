@@ -2,6 +2,8 @@
 
 import { useRef, useState, type DragEvent } from "react";
 import { validateExcelFile } from "@/lib/validation";
+import { usePlan } from "@/lib/usePlan";
+import { fileSizeLimitBytes, buildTooLargeMessage } from "@/lib/fileSizeLimits";
 import { mergeFiles, buildXlsxBlob, triggerDownload } from "@/lib/fileMergeSplit";
 import { useLocale } from "@/components/LocaleProvider";
 
@@ -14,6 +16,9 @@ function formatBytes(bytes: number): string {
 export default function FileMerger() {
   const { t } = useLocale();
   const tt = t.tools.fusion;
+  const fl = t.fileLimits;
+  const { plan } = usePlan();
+  const maxFileSize = fileSizeLimitBytes(plan);
 
   const [mergeQueue, setMergeQueue] = useState<File[]>([]);
   const [merging, setMerging] = useState(false);
@@ -30,9 +35,14 @@ export default function FileMerger() {
     const valid: File[] = [];
 
     for (const file of incoming) {
-      const validation = validateExcelFile(file);
-      if (validation.ok) valid.push(file);
-      else errors.push(`${file.name} : ${validation.error}`);
+      const validation = validateExcelFile(file, maxFileSize);
+      if (validation.ok) {
+        valid.push(file);
+      } else if (validation.sizeExceeded) {
+        errors.push(buildTooLargeMessage(fl, plan, validation.sizeExceeded.limitBytes, file.name));
+      } else {
+        errors.push(`${file.name} : ${validation.error}`);
+      }
     }
 
     setMergeQueue((prev) => [...prev, ...valid]);

@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import { validateExcelFile } from "@/lib/validation";
+import { usePlan } from "@/lib/usePlan";
+import { fileSizeLimitBytes, buildTooLargeMessage } from "@/lib/fileSizeLimits";
 import {
   splitBySheet,
   splitByRowChunks,
@@ -21,6 +23,9 @@ function formatBytes(bytes: number): string {
 export default function FileSplitter() {
   const { t } = useLocale();
   const tt = t.tools.division;
+  const fl = t.fileLimits;
+  const { plan } = usePlan();
+  const maxFileSize = fileSizeLimitBytes(plan);
 
   const [splitSource, setSplitSource] = useState<File | null>(null);
   const [splitMode, setSplitMode] = useState<SplitMode>("rows");
@@ -32,9 +37,13 @@ export default function FileSplitter() {
 
   function handleSplitFileSelected(file: File | undefined) {
     if (!file) return;
-    const validation = validateExcelFile(file);
+    const validation = validateExcelFile(file, maxFileSize);
     if (!validation.ok) {
-      setSplitError(validation.error ?? t.chat.invalidFileDefault);
+      setSplitError(
+        validation.sizeExceeded
+          ? buildTooLargeMessage(fl, plan, validation.sizeExceeded.limitBytes, file.name)
+          : (validation.error ?? t.chat.invalidFileDefault)
+      );
       return;
     }
     setSplitSource(file);

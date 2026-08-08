@@ -11,6 +11,8 @@ import {
 } from "@/lib/fileProtect";
 import { LockIcon } from "@/components/icons/ToolIcons";
 import { useLocale } from "@/components/LocaleProvider";
+import { usePlan } from "@/lib/usePlan";
+import { fileSizeLimitBytes, buildTooLargeMessage } from "@/lib/fileSizeLimits";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
 type Tab = "protect" | "unlock";
@@ -78,6 +80,9 @@ function Dropzone({
 export default function FileProtector() {
   const { t } = useLocale();
   const tt = t.tools.securite;
+  const fl = t.fileLimits;
+  const { plan } = usePlan();
+  const maxFileSize = fileSizeLimitBytes(plan);
 
   const TABS: { value: Tab; label: string }[] = [
     { value: "protect", label: tt.tabProtect },
@@ -87,14 +92,14 @@ export default function FileProtector() {
   function validateSourceFile(file: File): string | null {
     if (!file.name.toLowerCase().endsWith(".xlsx")) return tt.errXlsxOnly;
     if (file.size <= 0) return tt.errEmpty;
-    if (file.size > 10 * 1024 * 1024) return tt.errTooLarge;
+    if (file.size > maxFileSize) return buildTooLargeMessage(fl, plan, maxFileSize, file.name);
     return null;
   }
 
   function validateZipFile(file: File): string | null {
     if (!file.name.toLowerCase().endsWith(".zip")) return tt.errZipOnly;
     if (file.size <= 0) return tt.errEmpty;
-    if (file.size > 10 * 1024 * 1024) return tt.errTooLarge;
+    if (file.size > maxFileSize) return buildTooLargeMessage(fl, plan, maxFileSize, file.name);
     return null;
   }
 

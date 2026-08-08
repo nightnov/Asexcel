@@ -13,6 +13,13 @@ export const ALLOWED_MIME_TYPES = [
 export interface FileValidationResult {
   ok: boolean;
   error?: string;
+  /**
+   * Set only when validation failed specifically because of file size (as
+   * opposed to extension/MIME/empty), so callers can render a plan-aware,
+   * translated message that mentions the actual limit that applies to this
+   * visitor — see src/lib/fileSizeLimits.ts.
+   */
+  sizeExceeded?: { limitBytes: number };
 }
 
 function getExtension(filename: string): string {
@@ -24,8 +31,12 @@ function getExtension(filename: string): string {
  * Validates an uploaded file against the extension/MIME/size allowlist.
  * MIME type from the browser can be spoofed, so this is a first line of
  * defense, not the only one — treat the file as untrusted downstream too.
+ *
+ * `maxSizeBytes` defaults to the historical flat 10 MB cap (still used as-is
+ * by the chat file attachment); the non-AI utility tools instead pass the
+ * visitor's plan-based limit (5/15/100 MB — see src/lib/fileSizeLimits.ts).
  */
-export function validateExcelFile(file: File): FileValidationResult {
+export function validateExcelFile(file: File, maxSizeBytes: number = MAX_FILE_SIZE_BYTES): FileValidationResult {
   const extension = getExtension(file.name);
 
   if (!ALLOWED_EXTENSIONS.includes(extension as (typeof ALLOWED_EXTENSIONS)[number])) {
@@ -46,11 +57,8 @@ export function validateExcelFile(file: File): FileValidationResult {
     return { ok: false, error: "Le fichier est vide." };
   }
 
-  if (file.size > MAX_FILE_SIZE_BYTES) {
-    return {
-      ok: false,
-      error: `Le fichier dépasse la taille maximale autorisée (${MAX_FILE_SIZE_BYTES / (1024 * 1024)} Mo).`,
-    };
+  if (file.size > maxSizeBytes) {
+    return { ok: false, sizeExceeded: { limitBytes: maxSizeBytes } };
   }
 
   return { ok: true };

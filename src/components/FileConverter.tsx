@@ -2,6 +2,8 @@
 
 import { useRef, useState, type DragEvent } from "react";
 import { validateExcelFile } from "@/lib/validation";
+import { usePlan } from "@/lib/usePlan";
+import { fileSizeLimitBytes, buildTooLargeMessage } from "@/lib/fileSizeLimits";
 import {
   getSheetNames,
   extractSheetData,
@@ -30,6 +32,9 @@ function formatBytes(bytes: number): string {
 export default function FileConverter() {
   const { t } = useLocale();
   const tt = t.tools.conversion;
+  const fl = t.fileLimits;
+  const { plan } = usePlan();
+  const maxFileSize = fileSizeLimitBytes(plan);
 
   const FORMAT_TABS: { value: OutputFormat; label: string }[] = [
     { value: "pdf", label: "PDF" },
@@ -66,9 +71,13 @@ export default function FileConverter() {
 
   async function handleFileSelected(selected: File | undefined) {
     if (!selected) return;
-    const validation = validateExcelFile(selected);
+    const validation = validateExcelFile(selected, maxFileSize);
     if (!validation.ok) {
-      setError(`${selected.name} : ${validation.error}`);
+      setError(
+        validation.sizeExceeded
+          ? buildTooLargeMessage(fl, plan, validation.sizeExceeded.limitBytes, selected.name)
+          : `${selected.name} : ${validation.error}`
+      );
       return;
     }
 

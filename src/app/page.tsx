@@ -12,6 +12,23 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 
 type ToolCat = "clean" | "translate" | "files" | "ia" | "fun" | "support";
 
+/** The 3 dashboard groups the tool grid is organized under (see groupOf below). */
+type ToolGroup = "ai" | "files" | "fun";
+const GROUP_ORDER: ToolGroup[] = ["ai", "files", "fun"];
+const GROUP_BADGE_CLASSES: Record<ToolGroup, string> = {
+  ai: "bg-violet-50 text-violet-700 border-violet-200",
+  files: "bg-sky-50 text-sky-700 border-sky-200",
+  fun: "bg-amber-50 text-amber-700 border-amber-200",
+};
+const GROUP_ICON: Record<ToolGroup, string> = { ai: "🤖", files: "🗂️", fun: "🎯" };
+
+/** "ia" -> AI-powered tools, "fun" -> tests/games, everything else (clean/translate/files/support) -> plain utilities. */
+function groupOf(cat: ToolCat): ToolGroup {
+  if (cat === "ia") return "ai";
+  if (cat === "fun") return "fun";
+  return "files";
+}
+
 interface Tool {
   id: string;
   title: string;
@@ -261,11 +278,38 @@ export default function HomePage(): ReactNode {
 
       <section id="outils" className={styles.section}>
         <div className={styles.wrap}>
-          <div className={styles.toolsGrid}>
-            {visibleTools.map((tool, i) => (
-              <ToolCard tool={tool} index={i} key={tool.id} />
-            ))}
-          </div>
+          {filter === "tout" ? (
+            (() => {
+              let runningIndex = 0;
+              return GROUP_ORDER.map((group) => {
+                const groupTools = visibleTools.filter((tool) => groupOf(tool.cat) === group);
+                if (groupTools.length === 0) return null;
+                const startIndex = runningIndex;
+                runningIndex += groupTools.length;
+                return (
+                  <div key={group} className="mb-10 last:mb-0">
+                    <div
+                      className={`mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold ${GROUP_BADGE_CLASSES[group]}`}
+                    >
+                      <span aria-hidden="true">{GROUP_ICON[group]}</span>
+                      {t.home.toolGroups[group]}
+                    </div>
+                    <div className={styles.toolsGrid}>
+                      {groupTools.map((tool, i) => (
+                        <ToolCard tool={tool} index={startIndex + i} key={tool.id} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              });
+            })()
+          ) : (
+            <div className={styles.toolsGrid}>
+              {visibleTools.map((tool, i) => (
+                <ToolCard tool={tool} index={i} key={tool.id} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
