@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     switch (eventName) {
       case "subscription_created": {
         if (!userId || !plan) break;
-        await admin
+        const { error: updateError } = await admin
           .from("profiles")
           .update({
             plan: "pro",
@@ -70,6 +70,14 @@ export async function POST(request: NextRequest) {
             lemon_squeezy_subscription_id: payload.data.id,
           })
           .eq("id", userId);
+        // Thrown (not just logged): this write flipping the user to Pro is
+        // the whole point of the webhook, so a silent failure here must
+        // surface as a non-2xx response — Lemon Squeezy retries those,
+        // console.warn alone would not (see the e-mail failure below,
+        // which is the opposite case: never worth a retry).
+        if (updateError) {
+          throw new Error(`profiles update failed for user ${userId}: ${updateError.message}`);
+        }
 
         // Best-effort — a failed confirmation e-mail must never fail the
         // webhook itself (Lemon Squeezy retries on non-2xx, which would
@@ -92,10 +100,13 @@ export async function POST(request: NextRequest) {
       // period ends — Lemon Squeezy sends "expired" once that period is
       // actually over, which is the only point access should be revoked.
       case "subscription_expired": {
-        await admin
+        const { error: updateError } = await admin
           .from("profiles")
           .update({ plan: "free", plan_type: null })
           .eq("lemon_squeezy_subscription_id", payload.data.id);
+        if (updateError) {
+          throw new Error(`profiles downgrade failed for subscription ${payload.data.id}: ${updateError.message}`);
+        }
         break;
       }
 
