@@ -8,7 +8,15 @@
  * enforcement entirely by never establishing a real session, and chat
  * history stops being persisted. NEXT_PUBLIC_* so both client and server
  * code can read the same flag without duplicating env plumbing.
+ *
+ * `process.env.NODE_ENV === "production"` is inlined by Next.js at build
+ * time (same as the NEXT_PUBLIC_ var), so this can't be flipped back on by
+ * a stray/copy-pasted env var on the production host — a build with
+ * NODE_ENV=production always ignores NEXT_PUBLIC_DISABLE_AUTH, full stop.
+ * If auth appeared to silently no-op in prod (login button doing nothing,
+ * straight to /chat with no code-entry screen), this was very likely why.
  */
-export const AUTH_DISABLED = process.env.NEXT_PUBLIC_DISABLE_AUTH === "true";
+export const AUTH_DISABLED =
+  process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_DISABLE_AUTH === "true";
 
 export const MOCK_USER_ID = "00000000-0000-0000-0000-000000000000";
