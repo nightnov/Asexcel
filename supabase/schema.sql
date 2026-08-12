@@ -15,17 +15,16 @@ create table if not exists public.profiles (
   daily_quota_used integer not null default 0,
   quota_reset_at date not null default current_date,
   -- 'pro' grants unlimited AI usage (see src/lib/quota.ts). Flipped by the
-  -- Lemon Squeezy webhook (see src/app/api/lemon-squeezy/webhook/route.ts),
-  -- never set directly by client code.
+  -- Tebex webhook (see src/app/api/tebex/webhook/route.ts), never set
+  -- directly by client code.
   plan text not null default 'free' check (plan in ('free', 'pro')),
   -- Which Pro pricing option is active — null unless plan = 'pro'.
   plan_type text check (plan_type in ('monthly', 'annual')),
-  -- Lemon Squeezy identifiers, set once a checkout completes. Nullable: most
-  -- users never touch billing. No card data is ever stored here or anywhere
-  -- else in this schema — Lemon Squeezy (merchant of record) holds it, we
-  -- only keep IDs.
-  lemon_squeezy_customer_id text,
-  lemon_squeezy_subscription_id text unique,
+  -- Tebex transaction id, set once a checkout completes — used to match the
+  -- profile again on cancellation/expiry. Nullable: most users never touch
+  -- billing. No card data is ever stored here or anywhere else in this
+  -- schema — Tebex (merchant of record) holds it, we only keep the id.
+  tebex_transaction_id text unique,
   -- Set once the welcome e-mail has actually been sent (see
   -- src/app/auth/callback/route.ts) so a returning user is never re-sent
   -- one on every login — null means "not sent yet".
@@ -34,15 +33,16 @@ create table if not exists public.profiles (
 );
 
 -- Safe on repeat runs: adds columns if this table already existed before
--- the free/Pro tier split, or before Lemon Squeezy billing, was introduced.
+-- the free/Pro tier split, or before Tebex billing, was introduced.
 alter table public.profiles add column if not exists plan text not null default 'free' check (plan in ('free', 'pro'));
 alter table public.profiles add column if not exists plan_type text check (plan_type in ('monthly', 'annual'));
-alter table public.profiles add column if not exists lemon_squeezy_customer_id text;
-alter table public.profiles add column if not exists lemon_squeezy_subscription_id text unique;
+alter table public.profiles add column if not exists tebex_transaction_id text unique;
 alter table public.profiles add column if not exists welcome_email_sent_at timestamptz;
--- Drops columns from an earlier Stripe-based prototype of this feature, if present.
+-- Drops columns from earlier payment-provider prototypes of this feature, if present.
 alter table public.profiles drop column if exists stripe_customer_id;
 alter table public.profiles drop column if exists stripe_subscription_id;
+alter table public.profiles drop column if exists lemon_squeezy_customer_id;
+alter table public.profiles drop column if exists lemon_squeezy_subscription_id;
 
 alter table public.profiles enable row level security;
 

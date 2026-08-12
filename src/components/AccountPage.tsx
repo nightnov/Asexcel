@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import LandingHeader from "@/components/LandingHeader";
 import { useLocale } from "@/components/LocaleProvider";
+import { TEBEX_STORE_URL } from "@/lib/tebex";
 import type { UserPlan, ProPlanType } from "@/types/database";
 
 interface AccountPageProps {
@@ -20,29 +20,10 @@ export default function AccountPage({ email, plan, planType }: AccountPageProps)
   const searchParams = useSearchParams();
   const checkoutSuccess = searchParams.get("checkout") === "success";
 
-  const [portalLoading, setPortalLoading] = useState(false);
-  const [portalError, setPortalError] = useState<string | null>(null);
-
   const PLAN_TYPE_LABEL: Record<ProPlanType, string> = {
     monthly: ac.planTypeMonthly,
     annual: ac.planTypeAnnual,
   };
-
-  async function handleManageBilling() {
-    setPortalLoading(true);
-    setPortalError(null);
-    try {
-      const res = await fetch("/api/lemon-squeezy/portal", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok || !data.url) {
-        throw new Error(data.error ?? ac.portalError);
-      }
-      window.location.href = data.url;
-    } catch (err) {
-      setPortalError(err instanceof Error ? err.message : ac.portalError);
-      setPortalLoading(false);
-    }
-  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -76,18 +57,14 @@ export default function AccountPage({ email, plan, planType }: AccountPageProps)
           {plan === "pro" ? (
             <>
               <p className="mt-4 text-sm text-slate-500">{ac.manageBillingHint}</p>
-              <button
-                type="button"
-                onClick={handleManageBilling}
-                disabled={portalLoading}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60"
+              <a
+                href={TEBEX_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700"
               >
-                {portalLoading && (
-                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                )}
                 {ac.manageBilling}
-              </button>
-              {portalError && <p className="mt-2 text-sm text-red-600">{portalError}</p>}
+              </a>
             </>
           ) : (
             <Link

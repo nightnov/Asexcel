@@ -20,8 +20,7 @@ export interface Database {
           quota_reset_at: string;
           plan: UserPlan;
           plan_type: ProPlanType | null;
-          lemon_squeezy_customer_id: string | null;
-          lemon_squeezy_subscription_id: string | null;
+          tebex_transaction_id: string | null;
           welcome_email_sent_at: string | null;
           created_at: string;
         };
@@ -32,8 +31,7 @@ export interface Database {
           quota_reset_at?: string;
           plan?: UserPlan;
           plan_type?: ProPlanType | null;
-          lemon_squeezy_customer_id?: string | null;
-          lemon_squeezy_subscription_id?: string | null;
+          tebex_transaction_id?: string | null;
           welcome_email_sent_at?: string | null;
           created_at?: string;
         };
@@ -43,8 +41,7 @@ export interface Database {
           quota_reset_at: string;
           plan: UserPlan;
           plan_type: ProPlanType | null;
-          lemon_squeezy_customer_id: string | null;
-          lemon_squeezy_subscription_id: string | null;
+          tebex_transaction_id: string | null;
           welcome_email_sent_at: string | null;
         }>;
         Relationships: [];

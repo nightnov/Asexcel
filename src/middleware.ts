@@ -8,9 +8,9 @@ import { LOCALE_COOKIE, isLocale, negotiateLocale } from "@/lib/i18n/config";
 // daily allowance (tracked client-side, see src/lib/useDailyQuota.ts), so
 // those routes must stay reachable without a session. The route handlers
 // themselves branch on whether a real user is present.
-// /api/lemon-squeezy/webhook is also deliberately excluded — it's called
-// by Lemon Squeezy itself (no user session), and is secured by HMAC
-// signature verification instead (see its route handler).
+// /api/tebex/webhook is also deliberately excluded — it's called by Tebex
+// itself (no user session), and is secured by signature verification
+// instead (see its route handler).
 const PROTECTED_PREFIXES = ["/api/upload", "/compte", "/checkout"];
 
 /** Sets the locale cookie from `Accept-Language` on first visit only — an
