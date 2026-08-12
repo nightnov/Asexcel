@@ -2,27 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import styles from "@/app/landing.module.css";
 import AuthModal from "@/components/AuthModal";
+import UserMenu from "@/components/UserMenu";
 import { useLocale } from "@/components/LocaleProvider";
 import { useSupabaseUser } from "@/lib/useSupabaseUser";
-import { AUTH_DISABLED } from "@/lib/dev-auth";
-import { createClient } from "@/lib/supabase/client";
 
 export default function LandingHeader() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { t } = useLocale();
-  const router = useRouter();
   const { user, loading } = useSupabaseUser();
-
-  async function handleLogout() {
-    if (AUTH_DISABLED) return;
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
-  }
 
   return (
     <>
@@ -44,14 +33,7 @@ export default function LandingHeader() {
 
           <div className={styles.headerActions}>
             {loading ? null : user ? (
-              <>
-                <Link href="/compte" className={styles.linkButton}>
-                  {t.nav.monCompte}
-                </Link>
-                <button type="button" onClick={handleLogout} className={styles.navBtnPrimary}>
-                  {t.nav.seDeconnecter}
-                </button>
-              </>
+              <UserMenu user={user} />
             ) : (
               <>
                 <Link href="/login" className={styles.linkButton}>

@@ -133,6 +133,7 @@ export const dictionaries = {
       welcomeTitle: "Bienvenue sur Asexcel",
       welcomeSubtitle: "Connectez-vous pour accéder à vos outils et retrouver vos historiques.",
       continueWithGoogle: "Continuer avec Google",
+      continueWithFacebook: "Continuer avec Facebook",
       continueWithApple: "Continuer avec Apple",
       continueWithMicrosoft: "Continuer avec Microsoft",
       continueWithEmail: "Continuer avec l'e-mail",
@@ -222,6 +223,10 @@ export const dictionaries = {
       upgradeCta: "Passer au plan Pro",
       portalError: "Impossible d'ouvrir le portail de facturation. Réessayez plus tard.",
       checkoutSuccessBanner: "🎉 Merci ! Votre abonnement Pro est actif.",
+    },
+    userMenu: {
+      assistant: "Assistant IA",
+      tools: "Outils Excel",
     },
     checkout: {
       configureTitle: "Configurer votre forfait",
@@ -836,6 +841,7 @@ export const dictionaries = {
       welcomeTitle: "Welcome to Asexcel",
       welcomeSubtitle: "Log in to access your tools and pick up your history.",
       continueWithGoogle: "Continue with Google",
+      continueWithFacebook: "Continue with Facebook",
       continueWithApple: "Continue with Apple",
       continueWithMicrosoft: "Continue with Microsoft",
       continueWithEmail: "Continue with email",
@@ -925,6 +931,10 @@ export const dictionaries = {
       upgradeCta: "Upgrade to Pro",
       portalError: "Couldn't open the billing portal. Try again later.",
       checkoutSuccessBanner: "🎉 Thank you! Your Pro subscription is active.",
+    },
+    userMenu: {
+      assistant: "AI Assistant",
+      tools: "Excel Tools",
     },
     checkout: {
       configureTitle: "Set up your plan",
@@ -1539,6 +1549,7 @@ export const dictionaries = {
       welcomeTitle: "Bienvenido a Asexcel",
       welcomeSubtitle: "Inicia sesión para acceder a tus herramientas y retomar tu historial.",
       continueWithGoogle: "Continuar con Google",
+      continueWithFacebook: "Continuar con Facebook",
       continueWithApple: "Continuar con Apple",
       continueWithMicrosoft: "Continuar con Microsoft",
       continueWithEmail: "Continuar con el correo",
@@ -1628,6 +1639,10 @@ export const dictionaries = {
       upgradeCta: "Pasar a Pro",
       portalError: "No se pudo abrir el portal de facturación. Inténtalo más tarde.",
       checkoutSuccessBanner: "🎉 ¡Gracias! Tu suscripción Pro está activa.",
+    },
+    userMenu: {
+      assistant: "Asistente de IA",
+      tools: "Herramientas Excel",
     },
     checkout: {
       configureTitle: "Configura tu plan",
@@ -2242,6 +2257,7 @@ export const dictionaries = {
       welcomeTitle: "Willkommen bei Asexcel",
       welcomeSubtitle: "Melden Sie sich an, um auf Ihre Werkzeuge und Ihren Verlauf zuzugreifen.",
       continueWithGoogle: "Weiter mit Google",
+      continueWithFacebook: "Weiter mit Facebook",
       continueWithApple: "Weiter mit Apple",
       continueWithMicrosoft: "Weiter mit Microsoft",
       continueWithEmail: "Weiter mit E-Mail",
@@ -2331,6 +2347,10 @@ export const dictionaries = {
       upgradeCta: "Auf Pro upgraden",
       portalError: "Das Abrechnungsportal konnte nicht geöffnet werden. Versuchen Sie es später erneut.",
       checkoutSuccessBanner: "🎉 Danke! Ihr Pro-Abonnement ist aktiv.",
+    },
+    userMenu: {
+      assistant: "KI-Assistent",
+      tools: "Excel-Tools",
     },
     checkout: {
       configureTitle: "Ihren Plan einrichten",
@@ -2945,6 +2965,7 @@ export const dictionaries = {
       welcomeTitle: "Bem-vindo ao Asexcel",
       welcomeSubtitle: "Entre para acessar suas ferramentas e retomar seu histórico.",
       continueWithGoogle: "Continuar com o Google",
+      continueWithFacebook: "Continuar com o Facebook",
       continueWithApple: "Continuar com a Apple",
       continueWithMicrosoft: "Continuar com a Microsoft",
       continueWithEmail: "Continuar com e-mail",
@@ -3034,6 +3055,10 @@ export const dictionaries = {
       upgradeCta: "Passar para o Pro",
       portalError: "Não foi possível abrir o portal de cobrança. Tente novamente mais tarde.",
       checkoutSuccessBanner: "🎉 Obrigado! Sua assinatura Pro está ativa.",
+    },
+    userMenu: {
+      assistant: "Assistente de IA",
+      tools: "Ferramentas Excel",
     },
     checkout: {
       configureTitle: "Configure seu plano",
@@ -3648,6 +3673,7 @@ export const dictionaries = {
       welcomeTitle: "مرحبًا بك في Asexcel",
       welcomeSubtitle: "سجّل الدخول للوصول إلى أدواتك واستعادة سجلّك.",
       continueWithGoogle: "المتابعة باستخدام Google",
+      continueWithFacebook: "المتابعة باستخدام Facebook",
       continueWithApple: "المتابعة باستخدام Apple",
       continueWithMicrosoft: "المتابعة باستخدام Microsoft",
       continueWithEmail: "المتابعة بالبريد الإلكتروني",
@@ -3737,6 +3763,10 @@ export const dictionaries = {
       upgradeCta: "الترقية إلى Pro",
       portalError: "تعذّر فتح بوابة الفوترة. حاول مرة أخرى لاحقًا.",
       checkoutSuccessBanner: "🎉 شكرًا لك! اشتراكك في Pro نشط الآن.",
+    },
+    userMenu: {
+      assistant: "مساعد الذكاء الاصطناعي",
+      tools: "أدوات إكسل",
     },
     checkout: {
       configureTitle: "إعداد خطتك",
@@ -4351,6 +4381,7 @@ export const dictionaries = {
       welcomeTitle: "Benvenuto su Asexcel",
       welcomeSubtitle: "Accedi per usare i tuoi strumenti e ritrovare la tua cronologia.",
       continueWithGoogle: "Continua con Google",
+      continueWithFacebook: "Continua con Facebook",
       continueWithApple: "Continua con Apple",
       continueWithMicrosoft: "Continua con Microsoft",
       continueWithEmail: "Continua con l'e-mail",
@@ -4440,6 +4471,10 @@ export const dictionaries = {
       upgradeCta: "Passa a Pro",
       portalError: "Impossibile aprire il portale di fatturazione. Riprova più tardi.",
       checkoutSuccessBanner: "🎉 Grazie! Il tuo abbonamento Pro è attivo.",
+    },
+    userMenu: {
+      assistant: "Assistente IA",
+      tools: "Strumenti Excel",
     },
     checkout: {
       configureTitle: "Configura il tuo piano",
@@ -5054,6 +5089,7 @@ export const dictionaries = {
       welcomeTitle: "Welkom bij Asexcel",
       welcomeSubtitle: "Log in om je tools te gebruiken en je geschiedenis terug te vinden.",
       continueWithGoogle: "Doorgaan met Google",
+      continueWithFacebook: "Doorgaan met Facebook",
       continueWithApple: "Doorgaan met Apple",
       continueWithMicrosoft: "Doorgaan met Microsoft",
       continueWithEmail: "Doorgaan met e-mail",
@@ -5143,6 +5179,10 @@ export const dictionaries = {
       upgradeCta: "Upgraden naar Pro",
       portalError: "Kon het factureringsportaal niet openen. Probeer het later opnieuw.",
       checkoutSuccessBanner: "🎉 Bedankt! Je Pro-abonnement is actief.",
+    },
+    userMenu: {
+      assistant: "AI-assistent",
+      tools: "Excel-tools",
     },
     checkout: {
       configureTitle: "Stel je abonnement in",
@@ -5757,6 +5797,7 @@ export const dictionaries = {
       welcomeTitle: "Witamy w Asexcel",
       welcomeSubtitle: "Zaloguj się, aby korzystać z narzędzi i odzyskać historię.",
       continueWithGoogle: "Kontynuuj z Google",
+      continueWithFacebook: "Kontynuuj z Facebookiem",
       continueWithApple: "Kontynuuj z Apple",
       continueWithMicrosoft: "Kontynuuj z Microsoft",
       continueWithEmail: "Kontynuuj przez e-mail",
@@ -5846,6 +5887,10 @@ export const dictionaries = {
       upgradeCta: "Przejdź na Pro",
       portalError: "Nie udało się otworzyć portalu rozliczeniowego. Spróbuj ponownie później.",
       checkoutSuccessBanner: "🎉 Dziękujemy! Twoja subskrypcja Pro jest aktywna.",
+    },
+    userMenu: {
+      assistant: "Asystent AI",
+      tools: "Narzędzia Excel",
     },
     checkout: {
       configureTitle: "Skonfiguruj swój plan",
@@ -6460,6 +6505,7 @@ export const dictionaries = {
       welcomeTitle: "Asexcel'e hoş geldiniz",
       welcomeSubtitle: "Araçlarınıza erişmek ve geçmişinizi bulmak için giriş yapın.",
       continueWithGoogle: "Google ile devam et",
+      continueWithFacebook: "Facebook ile devam et",
       continueWithApple: "Apple ile devam et",
       continueWithMicrosoft: "Microsoft ile devam et",
       continueWithEmail: "E-posta ile devam et",
@@ -6549,6 +6595,10 @@ export const dictionaries = {
       upgradeCta: "Pro'ya yükselt",
       portalError: "Faturalandırma portalı açılamadı. Daha sonra tekrar deneyin.",
       checkoutSuccessBanner: "🎉 Teşekkürler! Pro aboneliğiniz aktif.",
+    },
+    userMenu: {
+      assistant: "Yapay Zeka Asistanı",
+      tools: "Excel Araçları",
     },
     checkout: {
       configureTitle: "Planınızı ayarlayın",
@@ -7163,6 +7213,7 @@ export const dictionaries = {
       welcomeTitle: "Добро пожаловать в Asexcel",
       welcomeSubtitle: "Войдите, чтобы получить доступ к инструментам и своей истории.",
       continueWithGoogle: "Продолжить с Google",
+      continueWithFacebook: "Продолжить с Facebook",
       continueWithApple: "Продолжить с Apple",
       continueWithMicrosoft: "Продолжить с Microsoft",
       continueWithEmail: "Продолжить по e-mail",
@@ -7252,6 +7303,10 @@ export const dictionaries = {
       upgradeCta: "Перейти на Pro",
       portalError: "Не удалось открыть портал управления платежами. Попробуйте позже.",
       checkoutSuccessBanner: "🎉 Спасибо! Ваша подписка Pro активна.",
+    },
+    userMenu: {
+      assistant: "ИИ-ассистент",
+      tools: "Инструменты Excel",
     },
     checkout: {
       configureTitle: "Настройте тариф",
@@ -7866,6 +7921,7 @@ export const dictionaries = {
       welcomeTitle: "Asexcelへようこそ",
       welcomeSubtitle: "ログインしてツールと履歴にアクセスしましょう。",
       continueWithGoogle: "Googleで続ける",
+      continueWithFacebook: "Facebookで続ける",
       continueWithApple: "Appleで続ける",
       continueWithMicrosoft: "Microsoftで続ける",
       continueWithEmail: "メールで続ける",
@@ -7955,6 +8011,10 @@ export const dictionaries = {
       upgradeCta: "Proにアップグレード",
       portalError: "請求ポータルを開けませんでした。後でもう一度お試しください。",
       checkoutSuccessBanner: "🎉 ありがとうございます！Proサブスクリプションが有効になりました。",
+    },
+    userMenu: {
+      assistant: "AIアシスタント",
+      tools: "Excelツール",
     },
     checkout: {
       configureTitle: "プランを設定",
@@ -8569,6 +8629,7 @@ export const dictionaries = {
       welcomeTitle: "欢迎使用 Asexcel",
       welcomeSubtitle: "登录以访问您的工具并找回历史记录。",
       continueWithGoogle: "使用 Google 继续",
+      continueWithFacebook: "使用 Facebook 继续",
       continueWithApple: "使用 Apple 继续",
       continueWithMicrosoft: "使用 Microsoft 继续",
       continueWithEmail: "使用邮箱继续",
@@ -8658,6 +8719,10 @@ export const dictionaries = {
       upgradeCta: "升级至 Pro",
       portalError: "无法打开账单管理门户，请稍后重试。",
       checkoutSuccessBanner: "🎉 感谢！您的 Pro 订阅已激活。",
+    },
+    userMenu: {
+      assistant: "AI 助手",
+      tools: "Excel 工具",
     },
     checkout: {
       configureTitle: "设置您的套餐",
@@ -9272,6 +9337,7 @@ export const dictionaries = {
       welcomeTitle: "Asexcel에 오신 것을 환영합니다",
       welcomeSubtitle: "로그인하여 도구와 기록에 접근하세요.",
       continueWithGoogle: "Google로 계속하기",
+      continueWithFacebook: "Facebook으로 계속하기",
       continueWithApple: "Apple로 계속하기",
       continueWithMicrosoft: "Microsoft로 계속하기",
       continueWithEmail: "이메일로 계속하기",
@@ -9361,6 +9427,10 @@ export const dictionaries = {
       upgradeCta: "Pro로 업그레이드",
       portalError: "청구 포털을 열 수 없습니다. 나중에 다시 시도해 주세요.",
       checkoutSuccessBanner: "🎉 감사합니다! Pro 구독이 활성화되었습니다.",
+    },
+    userMenu: {
+      assistant: "AI 어시스턴트",
+      tools: "엑셀 도구",
     },
     checkout: {
       configureTitle: "플랜 설정",

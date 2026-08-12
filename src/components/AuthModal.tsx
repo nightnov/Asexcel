@@ -7,7 +7,7 @@ import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { LockIcon, SparklesIcon } from "@/components/icons/ToolIcons";
 import { useLocale } from "@/components/LocaleProvider";
 
-type OAuthProvider = "google" | "apple" | "azure";
+type OAuthProvider = "google" | "facebook" | "apple" | "azure";
 type EmailStatus = "idle" | "sending" | "sent" | "error";
 type CodeStatus = "idle" | "verifying" | "error";
 
@@ -30,6 +30,17 @@ function GoogleIcon() {
       <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.9l-3.87-3c-1.08.72-2.46 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.1A12 12 0 0 0 12 24z" />
       <path fill="#FBBC05" d="M5.27 14.29a7.2 7.2 0 0 1 0-4.58v-3.1H1.27a12 12 0 0 0 0 10.78l4-3.1z" />
       <path fill="#EA4335" d="M12 4.75c1.76 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.61l4 3.1C6.22 6.86 8.87 4.75 12 4.75z" />
+    </svg>
+  );
+}
+
+function FacebookIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <path
+        fill="#1877F2"
+        d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.89v2.25h3.32l-.53 3.49h-2.79V24C19.61 23.1 24 18.1 24 12.07z"
+      />
     </svg>
   );
 }
@@ -299,6 +310,13 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
                 loading={oauthLoading === "google"}
                 disabled={oauthLoading !== null}
                 onClick={() => handleOAuth("google")}
+              />
+              <SsoButton
+                icon={<FacebookIcon />}
+                label={t.auth.continueWithFacebook}
+                loading={oauthLoading === "facebook"}
+                disabled={oauthLoading !== null}
+                onClick={() => handleOAuth("facebook")}
               />
               <SsoButton
                 icon={<AppleIcon />}
