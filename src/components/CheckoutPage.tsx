@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale } from "@/components/LocaleProvider";
-import { PRO_PRICING, ANNUAL_MONTHLY_EQUIVALENT, ANNUAL_SAVINGS_PERCENT, type ProPlanType } from "@/lib/proPricing";
+import { PRO_PRICING, ANNUAL_SAVINGS_PERCENT, type ProPlanType } from "@/lib/proPricing";
 import { tebexCheckoutUrl } from "@/lib/tebex";
 
 interface CheckoutPageProps {
@@ -134,7 +134,7 @@ export default function CheckoutPage({ email, userId }: CheckoutPageProps) {
               </span>
               <div className="text-sm font-semibold text-white">{pp.annualLabel}</div>
               <div className="text-xs text-white/45">
-                {pp.annualSubLabel.replace("{amount}", formatUsd(ANNUAL_MONTHLY_EQUIVALENT))}
+                {formatUsd(PRO_PRICING.annual.amountUsd)} {pp.perYearSuffix}
               </div>
             </button>
           </div>

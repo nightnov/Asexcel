@@ -4,29 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
+import { MessageSquare, Wrench, Settings, Sparkles, LogOut, ChevronDown } from "lucide-react";
 import { useLocale } from "@/components/LocaleProvider";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { createClient } from "@/lib/supabase/client";
-import { ChatSparkleIcon, FolderIcon, SparklesIcon } from "@/components/icons/ToolIcons";
-
-function GearIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-    </svg>
-  );
-}
-
-function LogoutIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-      <path d="M16 17l5-5-5-5" />
-      <path d="M21 12H9" />
-    </svg>
-  );
-}
 
 function initialsFor(user: User): string {
   const name = (user.user_metadata?.full_name as string | undefined) ?? (user.user_metadata?.name as string | undefined);
@@ -76,10 +57,13 @@ export default function UserMenu({ user }: { user: User }) {
   }
 
   const links = [
-    { href: "/chat", label: t.userMenu.assistant, icon: <ChatSparkleIcon className="h-4 w-4" /> },
-    { href: "/outils", label: t.userMenu.tools, icon: <FolderIcon className="h-4 w-4" /> },
-    { href: "/compte", label: t.nav.monCompte, icon: <GearIcon className="h-4 w-4" /> },
+    { href: "/chat", label: t.userMenu.assistant, icon: MessageSquare },
+    { href: "/outils", label: t.userMenu.tools, icon: Wrench },
+    { href: "/compte", label: t.nav.monCompte, icon: Settings },
   ];
+
+  const initials = initialsFor(user);
+  const name = displayNameFor(user, t.userMenu.unknownName);
 
   return (
     <div ref={containerRef} className="relative">
@@ -88,19 +72,27 @@ export default function UserMenu({ user }: { user: User }) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1E8E5A] text-sm font-semibold text-white transition hover:brightness-110"
+        className="flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2 transition hover:bg-white/5"
       >
-        {initialsFor(user)}
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#1E8E5A] to-[#166B44] text-xs font-semibold text-white ring-2 ring-white/10">
+          {initials}
+        </span>
+        <ChevronDown className={`h-3.5 w-3.5 text-white/50 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_16px_48px_-12px_rgba(15,23,42,0.25)]"
+          className="absolute right-0 top-[calc(100%+0.6rem)] z-50 w-72 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_20px_56px_-16px_rgba(15,23,42,0.3)]"
         >
-          <div className="px-4 py-3.5">
-            <p className="truncate text-sm font-semibold text-gray-900">{displayNameFor(user, t.userMenu.unknownName)}</p>
-            <p className="truncate text-xs text-gray-500">{user.email}</p>
+          <div className="flex items-center gap-3 px-4 py-4">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1E8E5A] to-[#166B44] text-sm font-semibold text-white">
+              {initials}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-gray-900">{name}</p>
+              <p className="truncate text-xs text-gray-500">{user.email}</p>
+            </div>
           </div>
 
           <div className="border-t border-gray-100 py-1.5">
@@ -109,9 +101,9 @@ export default function UserMenu({ user }: { user: User }) {
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition hover:bg-gray-50"
               >
-                {link.icon}
+                <link.icon className="h-[18px] w-[18px] text-gray-400" strokeWidth={1.75} />
                 {link.label}
               </Link>
             ))}
@@ -121,9 +113,9 @@ export default function UserMenu({ user }: { user: User }) {
             <Link
               href="/checkout"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 rounded-xl bg-[#E4F5EC] px-3 py-2 text-sm font-semibold text-[#166B44] transition hover:bg-[#d5efe2]"
+              className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-[#1E8E5A]/10 to-[#1E8E5A]/5 px-3 py-2.5 text-sm font-semibold text-[#166B44] transition hover:from-[#1E8E5A]/15 hover:to-[#1E8E5A]/10"
             >
-              <SparklesIcon className="h-4 w-4" />
+              <Sparkles className="h-[18px] w-[18px]" strokeWidth={1.75} />
               {t.account.upgradeCta}
             </Link>
           </div>
@@ -132,9 +124,9 @@ export default function UserMenu({ user }: { user: User }) {
             <button
               type="button"
               onClick={handleLogout}
-              className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition hover:bg-gray-50"
             >
-              <LogoutIcon className="h-4 w-4" />
+              <LogOut className="h-[18px] w-[18px] text-gray-400" strokeWidth={1.75} />
               {t.nav.seDeconnecter}
             </button>
           </div>
