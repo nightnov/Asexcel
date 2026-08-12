@@ -8,13 +8,14 @@ import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { useLocale } from "@/components/LocaleProvider";
 
-type Step = "email" | "code";
-type SendStatus = "idle" | "sending" | "error";
-type VerifyStatus = "idle" | "verifying" | "error";
+type Mode = "credentials" | "otpEmail" | "otpCode" | "success";
+type AuthTab = "login" | "signup";
+type Status = "idle" | "sending" | "error";
+type OAuthProvider = "google" | "facebook" | "apple" | "azure";
 
 const RESEND_COOLDOWN_SECONDS = 30;
-
-type OAuthProvider = "google" | "facebook" | "apple" | "azure";
+const MIN_PASSWORD_LENGTH = 8;
+const SUCCESS_AUTO_CONTINUE_MS = 1600;
 
 function GoogleIcon() {
   return (
@@ -54,6 +55,15 @@ function MicrosoftIcon() {
       <rect x="13" y="2" width="9" height="9" fill="#7FBA00" />
       <rect x="2" y="13" width="9" height="9" fill="#00A4EF" />
       <rect x="13" y="13" width="9" height="9" fill="#FFB900" />
+    </svg>
+  );
+}
+
+function CheckCircleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-14 w-14 text-[#1E8E5A]" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+      <path d="M7.5 12.5l3 3 6-6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -170,14 +180,20 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const { t } = useLocale();
 
-  const [step, setStep] = useState<Step>("email");
+  const [mode, setMode] = useState<Mode>("credentials");
+  const [authTab, setAuthTab] = useState<AuthTab>("login");
+
   const [email, setEmail] = useState("");
-  const [sendStatus, setSendStatus] = useState<SendStatus>("idle");
-  const [sendError, setSendError] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [credStatus, setCredStatus] = useState<Status>("idle");
+  const [credError, setCredError] = useState<string | null>(null);
+
+  const [otpEmailStatus, setOtpEmailStatus] = useState<Status>("idle");
+  const [otpEmailError, setOtpEmailError] = useState<string | null>(null);
 
   const [code, setCode] = useState("");
-  const [verifyStatus, setVerifyStatus] = useState<VerifyStatus>("idle");
-  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [codeStatus, setCodeStatus] = useState<Status>("idle");
+  const [codeError, setCodeError] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
@@ -189,18 +205,25 @@ export default function LoginPage() {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  function goToChat() {
+  useEffect(() => {
+    if (mode !== "success") return;
+    const timer = setTimeout(proceedToApp, SUCCESS_AUTO_CONTINUE_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  function proceedToApp() {
     const next = searchParams.get("next") ?? "/chat";
     router.push(next);
     router.refresh();
   }
 
-  async function sendCode() {
-    setSendStatus("sending");
-    setSendError(null);
+  async function sendOtpEmailCode() {
+    setOtpEmailStatus("sending");
+    setOtpEmailError(null);
     try {
-      // See AuthModal.tsx's sendCode for why this goes through our own
-      // route instead of supabase.auth.signInWithOtp() directly.
+      // See src/app/api/auth/send-code/route.ts for why this goes through
+      // our own route instead of supabase.auth.signInWithOtp() directly.
       const res = await fetch("/api/auth/send-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -209,60 +232,115 @@ export default function LoginPage() {
       const body: { error?: string } = await res.json().catch(() => ({}));
       if (!res.ok) {
         logSupabaseError("Erreur envoi code OTP :", body);
-        setSendStatus("error");
-        setSendError(body.error || t.auth.unknownError);
+        setOtpEmailStatus("error");
+        setOtpEmailError(body.error || t.auth.unknownError);
         return false;
       }
-      setSendStatus("idle");
+      setOtpEmailStatus("idle");
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
       return true;
     } catch (error) {
       logSupabaseError("Erreur envoi code OTP :", error);
-      setSendStatus("error");
-      setSendError(getAuthErrorMessage(error, t.auth.unknownError));
+      setOtpEmailStatus("error");
+      setOtpEmailError(getAuthErrorMessage(error, t.auth.unknownError));
       return false;
     }
   }
 
-  async function handleEmailSubmit(event: FormEvent) {
+  async function handleCredentialsSubmit(event: FormEvent) {
     event.preventDefault();
     if (AUTH_DISABLED) {
-      goToChat();
+      setMode("success");
       return;
     }
-    if (await sendCode()) setStep("code");
+    setCredError(null);
+
+    if (authTab === "signup" && password.length < MIN_PASSWORD_LENGTH) {
+      setCredStatus("error");
+      setCredError(t.auth.passwordTooShort);
+      return;
+    }
+
+    setCredStatus("sending");
+    try {
+      if (authTab === "login") {
+        const supabase = createClient();
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          logSupabaseError("Erreur Supabase signInWithPassword :", error);
+          setCredStatus("error");
+          setCredError(
+            error.message.includes("Invalid login credentials") ? t.auth.invalidCredentials : getAuthErrorMessage(error, t.auth.unknownError)
+          );
+          return;
+        }
+        setMode("success");
+        return;
+      }
+
+      // See src/app/api/auth/signup/route.ts for why this goes through our
+      // own route instead of supabase.auth.signUp() directly.
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const body: { error?: string } = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        logSupabaseError("Erreur inscription :", body);
+        setCredStatus("error");
+        setCredError(body.error || t.auth.unknownError);
+        return;
+      }
+      setCredStatus("idle");
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
+      setMode("otpCode");
+    } catch (error) {
+      logSupabaseError("Erreur authentification :", error);
+      setCredStatus("error");
+      setCredError(getAuthErrorMessage(error, t.auth.unknownError));
+    }
+  }
+
+  async function handleOtpEmailSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (AUTH_DISABLED) {
+      setMode("success");
+      return;
+    }
+    if (await sendOtpEmailCode()) setMode("otpCode");
   }
 
   async function handleResendCode() {
     if (resendCooldown > 0) return;
-    await sendCode();
+    await sendOtpEmailCode();
   }
 
   async function handleCodeSubmit(event: FormEvent) {
     event.preventDefault();
-    setVerifyStatus("verifying");
-    setVerifyError(null);
+    setCodeStatus("sending");
+    setCodeError(null);
 
     try {
       const supabase = createClient();
       const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
       if (error) {
         logSupabaseError("Erreur Supabase verifyOtp :", error);
-        setVerifyStatus("error");
-        setVerifyError(t.auth.invalidCode);
+        setCodeStatus("error");
+        setCodeError(t.auth.invalidCode);
         return;
       }
-      goToChat();
+      setMode("success");
     } catch (error) {
       logSupabaseError("Erreur Supabase verifyOtp :", error);
-      setVerifyStatus("error");
-      setVerifyError(getAuthErrorMessage(error, t.auth.unknownError));
+      setCodeStatus("error");
+      setCodeError(getAuthErrorMessage(error, t.auth.unknownError));
     }
   }
 
   async function handleOAuth(provider: OAuthProvider) {
     if (AUTH_DISABLED) {
-      goToChat();
+      setMode("success");
       return;
     }
     setOauthLoading(provider);
@@ -302,163 +380,277 @@ export default function LoginPage() {
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 px-6 py-10 lg:grid-cols-2 lg:py-20">
         {/* Left — form */}
         <div className="mx-auto w-full max-w-sm">
-          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            {t.auth.welcomeTitle}
-          </h1>
-          <p className="mt-3 text-sm leading-relaxed text-white/50">
-            {t.auth.welcomeSubtitle}
-          </p>
-
-          {step === "email" && (
+          {mode === "success" ? (
+            <div className="flex flex-col items-center py-6 text-center">
+              <CheckCircleIcon />
+              <h1 className="mt-4 text-2xl font-semibold tracking-tight text-white">{t.auth.welcomeTitle}</h1>
+              <p className="mt-1.5 text-sm text-white/50">{t.auth.successSubtitle}</p>
+              <button
+                type="button"
+                onClick={proceedToApp}
+                className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44]"
+              >
+                {t.auth.continueCta}
+              </button>
+            </div>
+          ) : (
             <>
-              <div className="mt-8 space-y-2.5">
-                <OAuthButton
-                  icon={<GoogleIcon />}
-                  label={t.auth.continueWithGoogle}
-                  loading={oauthLoading === "google"}
-                  disabled={oauthLoading !== null}
-                  onClick={() => handleOAuth("google")}
-                />
-                <OAuthButton
-                  icon={<FacebookIcon />}
-                  label={t.auth.continueWithFacebook}
-                  loading={oauthLoading === "facebook"}
-                  disabled={oauthLoading !== null}
-                  onClick={() => handleOAuth("facebook")}
-                />
-                <OAuthButton
-                  icon={<AppleIcon />}
-                  label={t.auth.continueWithApple}
-                  loading={oauthLoading === "apple"}
-                  disabled={oauthLoading !== null}
-                  onClick={() => handleOAuth("apple")}
-                />
-                <OAuthButton
-                  icon={<MicrosoftIcon />}
-                  label={t.auth.continueWithMicrosoft}
-                  loading={oauthLoading === "azure"}
-                  disabled={oauthLoading !== null}
-                  onClick={() => handleOAuth("azure")}
-                />
-              </div>
+              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{t.auth.welcomeTitle}</h1>
+              <p className="mt-3 text-sm leading-relaxed text-white/50">{t.auth.welcomeSubtitle}</p>
 
-              {oauthError && <p className="mt-2 text-xs text-red-400">{oauthError}</p>}
+              {mode === "credentials" && (
+                <>
+                  <div className="mt-8 space-y-2.5">
+                    <OAuthButton
+                      icon={<GoogleIcon />}
+                      label={t.auth.continueWithGoogle}
+                      loading={oauthLoading === "google"}
+                      disabled={oauthLoading !== null}
+                      onClick={() => handleOAuth("google")}
+                    />
+                    <OAuthButton
+                      icon={<FacebookIcon />}
+                      label={t.auth.continueWithFacebook}
+                      loading={oauthLoading === "facebook"}
+                      disabled={oauthLoading !== null}
+                      onClick={() => handleOAuth("facebook")}
+                    />
+                    <OAuthButton
+                      icon={<AppleIcon />}
+                      label={t.auth.continueWithApple}
+                      loading={oauthLoading === "apple"}
+                      disabled={oauthLoading !== null}
+                      onClick={() => handleOAuth("apple")}
+                    />
+                    <OAuthButton
+                      icon={<MicrosoftIcon />}
+                      label={t.auth.continueWithMicrosoft}
+                      loading={oauthLoading === "azure"}
+                      disabled={oauthLoading !== null}
+                      onClick={() => handleOAuth("azure")}
+                    />
+                  </div>
 
-              <div className="relative py-5 text-center text-xs text-white/30">
-                <span className="relative bg-[#0B0F0D] px-2">{t.auth.or}</span>
-                <div className="absolute inset-x-0 top-1/2 -z-10 border-t border-white/10" />
-              </div>
+                  {oauthError && <p className="mt-2 text-xs text-red-400">{oauthError}</p>}
 
-              <form onSubmit={handleEmailSubmit} className="space-y-3">
-                <div>
-                  <label htmlFor="login-email" className="mb-1.5 block text-xs font-medium text-white/60">
-                    {t.auth.emailLabel}
-                  </label>
-                  <input
-                    id="login-email"
-                    type="email"
-                    required
-                    autoFocus
-                    placeholder={t.auth.emailPlaceholder}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
-                  />
+                  <div className="relative py-5 text-center text-xs text-white/30">
+                    <span className="relative bg-[#0B0F0D] px-2">{t.auth.or}</span>
+                    <div className="absolute inset-x-0 top-1/2 -z-10 border-t border-white/10" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1 rounded-xl bg-white/5 p-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthTab("login");
+                        setCredError(null);
+                      }}
+                      className={`rounded-lg py-2 text-sm font-medium transition ${
+                        authTab === "login" ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80"
+                      }`}
+                    >
+                      {t.auth.tabLogin}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthTab("signup");
+                        setCredError(null);
+                      }}
+                      className={`rounded-lg py-2 text-sm font-medium transition ${
+                        authTab === "signup" ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80"
+                      }`}
+                    >
+                      {t.auth.tabSignup}
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleCredentialsSubmit} className="mt-4 space-y-3">
+                    <div>
+                      <label htmlFor="login-email" className="mb-1.5 block text-xs font-medium text-white/60">
+                        {t.auth.emailLabel}
+                      </label>
+                      <input
+                        id="login-email"
+                        type="email"
+                        required
+                        autoFocus
+                        placeholder={t.auth.emailPlaceholder}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="login-password" className="mb-1.5 block text-xs font-medium text-white/60">
+                        {t.auth.passwordLabel}
+                      </label>
+                      <input
+                        id="login-password"
+                        type="password"
+                        required
+                        autoComplete={authTab === "login" ? "current-password" : "new-password"}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
+                      />
+                    </div>
+
+                    {credError !== null && <div className="text-xs text-red-400">{credError || "Erreur inconnue"}</div>}
+
+                    <button
+                      type="submit"
+                      disabled={credStatus === "sending"}
+                      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {credStatus === "sending" && (
+                        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                      )}
+                      {credStatus === "sending" ? t.auth.connecting : authTab === "login" ? t.auth.signInCta : t.auth.createAccountCta}
+                    </button>
+                  </form>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("otpEmail");
+                      setCredError(null);
+                    }}
+                    className="mt-4 w-full text-center text-xs font-medium text-white/50 hover:text-white"
+                  >
+                    {t.auth.useOtpLink}
+                  </button>
+                </>
+              )}
+
+              {mode === "otpEmail" && (
+                <div className="mt-8">
+                  <form onSubmit={handleOtpEmailSubmit} className="space-y-3">
+                    <div>
+                      <label htmlFor="login-otp-email" className="mb-1.5 block text-xs font-medium text-white/60">
+                        {t.auth.emailLabel}
+                      </label>
+                      <input
+                        id="login-otp-email"
+                        type="email"
+                        required
+                        autoFocus
+                        placeholder={t.auth.emailPlaceholder}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
+                      />
+                    </div>
+
+                    {otpEmailError !== null && <div className="text-xs text-red-400">{otpEmailError || "Erreur inconnue"}</div>}
+
+                    <button
+                      type="submit"
+                      disabled={otpEmailStatus === "sending"}
+                      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {otpEmailStatus === "sending" && (
+                        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                      )}
+                      {otpEmailStatus === "sending" ? t.auth.sendingLink : t.auth.receiveLink}
+                    </button>
+                  </form>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("credentials");
+                      setOtpEmailStatus("idle");
+                      setOtpEmailError(null);
+                    }}
+                    className="mt-4 text-xs font-medium text-white/50 hover:text-white"
+                  >
+                    {t.auth.usePasswordLink}
+                  </button>
                 </div>
+              )}
 
-                {sendError !== null && <div className="text-xs text-red-400">{sendError || "Erreur inconnue"}</div>}
+              {mode === "otpCode" && (
+                <div className="mt-8">
+                  <p className="text-sm leading-relaxed text-white/60">
+                    {t.auth.linkSentPrefix} <strong className="text-white">{email}</strong>
+                    {t.auth.linkSentSuffix}
+                  </p>
 
-                <button
-                  type="submit"
-                  disabled={sendStatus === "sending"}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {sendStatus === "sending" && (
-                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  )}
-                  {sendStatus === "sending" ? t.auth.sendingLink : t.auth.receiveLink}
-                </button>
-              </form>
+                  <form onSubmit={handleCodeSubmit} className="mt-4 space-y-3">
+                    <div>
+                      <label htmlFor="login-code" className="mb-1.5 block text-xs font-medium text-white/60">
+                        {t.auth.codeLabel}
+                      </label>
+                      <input
+                        id="login-code"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        required
+                        autoFocus
+                        maxLength={6}
+                        placeholder={t.auth.codePlaceholder}
+                        value={code}
+                        onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-center text-lg tracking-[0.4em] text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
+                      />
+                    </div>
+
+                    {codeError !== null && <div className="text-xs text-red-400">{codeError || "Erreur inconnue"}</div>}
+
+                    <button
+                      type="submit"
+                      disabled={codeStatus === "sending" || code.length !== 6}
+                      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {codeStatus === "sending" && (
+                        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                      )}
+                      {codeStatus === "sending" ? t.auth.verifyingCode : t.auth.verifyCta}
+                    </button>
+                  </form>
+
+                  <div className="mt-4 flex items-center justify-between text-xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode("otpEmail");
+                        setCode("");
+                        setCodeStatus("idle");
+                        setCodeError(null);
+                      }}
+                      className="font-medium text-white/50 hover:text-white"
+                    >
+                      {t.auth.changeEmail}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResendCode}
+                      disabled={resendCooldown > 0 || otpEmailStatus === "sending"}
+                      className="font-medium text-white/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {resendCooldown > 0 ? t.auth.resendCodeIn.replace("{seconds}", String(resendCooldown)) : t.auth.resendCode}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <p className="mt-8 text-xs leading-relaxed text-white/30">
+                {t.auth.agreeStart}{" "}
+                <a href="/conditions" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/60">
+                  {t.auth.terms}
+                </a>{" "}
+                {t.auth.and}{" "}
+                <a href="/confidentialite" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/60">
+                  {t.auth.privacy}
+                </a>
+                .
+              </p>
             </>
           )}
-
-          {step === "code" && (
-            <div className="mt-8">
-              <p className="text-sm leading-relaxed text-white/60">
-                {t.auth.linkSentPrefix} <strong className="text-white">{email}</strong>
-                {t.auth.linkSentSuffix}
-              </p>
-
-              <form onSubmit={handleCodeSubmit} className="mt-4 space-y-3">
-                <div>
-                  <label htmlFor="login-code" className="mb-1.5 block text-xs font-medium text-white/60">
-                    {t.auth.codeLabel}
-                  </label>
-                  <input
-                    id="login-code"
-                    type="text"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    required
-                    autoFocus
-                    maxLength={6}
-                    placeholder={t.auth.codePlaceholder}
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-center text-lg tracking-[0.4em] text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
-                  />
-                </div>
-
-                {verifyError !== null && <div className="text-xs text-red-400">{verifyError || "Erreur inconnue"}</div>}
-
-                <button
-                  type="submit"
-                  disabled={verifyStatus === "verifying" || code.length !== 6}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {verifyStatus === "verifying" && (
-                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  )}
-                  {verifyStatus === "verifying" ? t.auth.verifyingCode : t.auth.verifyCta}
-                </button>
-              </form>
-
-              <div className="mt-4 flex items-center justify-between text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep("email");
-                    setCode("");
-                    setVerifyStatus("idle");
-                    setVerifyError(null);
-                  }}
-                  className="font-medium text-white/50 hover:text-white"
-                >
-                  {t.auth.changeEmail}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleResendCode}
-                  disabled={resendCooldown > 0 || sendStatus === "sending"}
-                  className="font-medium text-white/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {resendCooldown > 0 ? t.auth.resendCodeIn.replace("{seconds}", String(resendCooldown)) : t.auth.resendCode}
-                </button>
-              </div>
-            </div>
-          )}
-
-          <p className="mt-8 text-xs leading-relaxed text-white/30">
-            {t.auth.agreeStart}{" "}
-            <a href="/conditions" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/60">
-              {t.auth.terms}
-            </a>{" "}
-            {t.auth.and}{" "}
-            <a href="/confidentialite" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/60">
-              {t.auth.privacy}
-            </a>
-            .
-          </p>
         </div>
 
         {/* Right — animated visual */}

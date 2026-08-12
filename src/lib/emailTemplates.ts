@@ -4,7 +4,10 @@ const GREEN = "#1E8E5A";
 const INK = "#20291F";
 const INK_SOFT = "#5B6B5C";
 const FOOTER_BG = "#FAFBFA";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+// Falls back to the real production domain (not localhost) — these links go
+// out in real e-mails, so this must never resolve to something unreachable
+// for the recipient even if NEXT_PUBLIC_SITE_URL isn't set on the host.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asexcel.com";
 
 interface EmailContent {
   subject: string;
@@ -37,8 +40,22 @@ function shell(bodyHtml: string, cta?: { label: string; href: string }): string 
         <td align="center">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(32,41,31,0.06);">
             <tr>
-              <td style="background:${GREEN};padding:24px 28px;">
-                <span style="font-size:17px;font-weight:700;color:#FFFFFF;">Asexcel</span>
+              <td style="height:4px;background:linear-gradient(90deg,${GREEN},#34D399);line-height:4px;font-size:0;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td style="background:${GREEN};padding:22px 28px;">
+                <table role="presentation" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="padding-right:10px;">
+                      <table role="presentation" cellpadding="0" cellspacing="0" style="width:28px;height:28px;background:#FFFFFF;border-radius:8px;">
+                        <tr>
+                          <td align="center" valign="middle" style="width:28px;height:28px;font-size:15px;font-weight:800;color:${GREEN};">A</td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td style="font-size:18px;font-weight:700;color:#FFFFFF;letter-spacing:-0.01em;">Asexcel</td>
+                  </tr>
+                </table>
               </td>
             </tr>
             <tr>
@@ -48,9 +65,14 @@ function shell(bodyHtml: string, cta?: { label: string; href: string }): string 
               </td>
             </tr>
             <tr>
-              <td style="padding:24px 28px;background:${FOOTER_BG};color:${INK_SOFT};font-size:12px;line-height:1.5;">
-                Asexcel — la boîte à outils pour tous les utilisateurs d'Excel.<br />
-                Une question ? Écrivez-nous depuis <a href="${SITE_URL}/outils/support" style="color:${GREEN};">notre page support</a>.
+              <td style="padding:0 28px;">
+                <div style="height:1px;background:#EEF1EF;margin-top:28px;"></div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 28px 24px;background:${FOOTER_BG};color:${INK_SOFT};font-size:12px;line-height:1.6;">
+                <strong style="color:${INK};">Asexcel</strong> — la boîte à outils pour tous les utilisateurs d'Excel.<br />
+                Une question ? Écrivez-nous depuis <a href="${SITE_URL}/outils/support" style="color:${GREEN};font-weight:600;">notre page support</a>.
               </td>
             </tr>
           </table>
