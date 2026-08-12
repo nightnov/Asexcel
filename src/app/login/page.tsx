@@ -5,7 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
-import { getAuthErrorMessage } from "@/lib/authError";
+import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { useLocale } from "@/components/LocaleProvider";
 
 type Step = "email" | "code";
@@ -202,7 +202,7 @@ export default function LoginPage() {
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
       if (error) {
-        console.error("Erreur Supabase OTP :", error);
+        logSupabaseError("Erreur Supabase OTP :", error);
         setSendStatus("error");
         setSendError(getAuthErrorMessage(error, t.auth.unknownError));
         return false;
@@ -211,7 +211,7 @@ export default function LoginPage() {
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
       return true;
     } catch (error) {
-      console.error("Erreur Supabase OTP :", error);
+      logSupabaseError("Erreur Supabase OTP :", error);
       setSendStatus("error");
       setSendError(getAuthErrorMessage(error, t.auth.unknownError));
       return false;
@@ -241,14 +241,14 @@ export default function LoginPage() {
       const supabase = createClient();
       const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
       if (error) {
-        console.error("Erreur Supabase verifyOtp :", error);
+        logSupabaseError("Erreur Supabase verifyOtp :", error);
         setVerifyStatus("error");
         setVerifyError(t.auth.invalidCode);
         return;
       }
       goToChat();
     } catch (error) {
-      console.error("Erreur Supabase verifyOtp :", error);
+      logSupabaseError("Erreur Supabase verifyOtp :", error);
       setVerifyStatus("error");
       setVerifyError(getAuthErrorMessage(error, t.auth.unknownError));
     }
@@ -268,12 +268,12 @@ export default function LoginPage() {
         options: { redirectTo: `${window.location.origin}/auth/callback` },
       });
       if (error) {
-        console.error("Erreur Supabase OAuth :", error);
+        logSupabaseError("Erreur Supabase OAuth :", error);
         setOauthError(t.auth.oauthUnavailable);
         setOauthLoading(null);
       }
     } catch (error) {
-      console.error("Erreur Supabase OAuth :", error);
+      logSupabaseError("Erreur Supabase OAuth :", error);
       setOauthError(t.auth.oauthUnavailable);
       setOauthLoading(null);
     }

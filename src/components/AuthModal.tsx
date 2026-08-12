@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
-import { getAuthErrorMessage } from "@/lib/authError";
+import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { LockIcon, SparklesIcon } from "@/components/icons/ToolIcons";
 import { useLocale } from "@/components/LocaleProvider";
 
@@ -186,12 +186,12 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
       // no local state to reset. We only ever get here on failure (provider
       // not enabled in the Supabase dashboard, network issue, etc.).
       if (error) {
-        console.error("Erreur Supabase OAuth :", error);
+        logSupabaseError("Erreur Supabase OAuth :", error);
         setOauthError(t.auth.oauthUnavailable);
         setOauthLoading(null);
       }
     } catch (error) {
-      console.error("Erreur Supabase OAuth :", error);
+      logSupabaseError("Erreur Supabase OAuth :", error);
       setOauthError(t.auth.oauthUnavailable);
       setOauthLoading(null);
     }
@@ -210,7 +210,7 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
         options: { shouldCreateUser: true },
       });
       if (error) {
-        console.error("Erreur Supabase OTP :", error);
+        logSupabaseError("Erreur Supabase OTP :", error);
         setEmailStatus("error");
         setEmailError(getAuthErrorMessage(error, t.auth.unknownError));
         return false;
@@ -219,7 +219,7 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
       return true;
     } catch (error) {
-      console.error("Erreur Supabase OTP :", error);
+      logSupabaseError("Erreur Supabase OTP :", error);
       setEmailStatus("error");
       setEmailError(getAuthErrorMessage(error, t.auth.unknownError));
       return false;
@@ -249,7 +249,7 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
       const supabase = createClient();
       const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
       if (error) {
-        console.error("Erreur Supabase verifyOtp :", error);
+        logSupabaseError("Erreur Supabase verifyOtp :", error);
         setCodeStatus("error");
         setCodeError(t.auth.invalidCode);
         return;
@@ -258,7 +258,7 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
       router.push("/chat");
       router.refresh();
     } catch (error) {
-      console.error("Erreur Supabase verifyOtp :", error);
+      logSupabaseError("Erreur Supabase verifyOtp :", error);
       setCodeStatus("error");
       setCodeError(getAuthErrorMessage(error, t.auth.unknownError));
     }

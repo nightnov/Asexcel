@@ -8,7 +8,7 @@ import LandingHeader from "@/components/LandingHeader";
 import { useLocale } from "@/components/LocaleProvider";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { createClient } from "@/lib/supabase/client";
-import { getAuthErrorMessage } from "@/lib/authError";
+import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { TEBEX_STORE_URL } from "@/lib/tebex";
 import type { UserPlan, ProPlanType } from "@/types/database";
 
@@ -55,14 +55,14 @@ export default function AccountPage({ email, name, plan, planType }: AccountPage
       const supabase = createClient();
       const { error } = await supabase.auth.updateUser({ data: { full_name: trimmed } });
       if (error) {
-        console.error("Erreur Supabase updateUser :", error);
+        logSupabaseError("Erreur Supabase updateUser :", error);
         setSaveStatus("error");
         setSaveError(getAuthErrorMessage(error, t.auth.unknownError));
         return;
       }
       setSaveStatus("saved");
     } catch (error) {
-      console.error("Erreur Supabase updateUser :", error);
+      logSupabaseError("Erreur Supabase updateUser :", error);
       setSaveStatus("error");
       setSaveError(getAuthErrorMessage(error, t.auth.unknownError));
     }
