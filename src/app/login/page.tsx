@@ -360,7 +360,7 @@ export default function LoginPage() {
                   />
                 </div>
 
-                {sendError && <p className="text-xs text-red-400">{sendError}</p>}
+                {sendError !== null && <div className="text-xs text-red-400">{sendError || "Erreur inconnue"}</div>}
 
                 <button
                   type="submit"
@@ -403,7 +403,7 @@ export default function LoginPage() {
                   />
                 </div>
 
-                {verifyError && <p className="text-xs text-red-400">{verifyError}</p>}
+                {verifyError !== null && <div className="text-xs text-red-400">{verifyError || "Erreur inconnue"}</div>}
 
                 <button
                   type="submit"

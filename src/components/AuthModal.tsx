@@ -388,7 +388,7 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
                   />
                 </div>
 
-                {emailError && <p className="text-xs text-red-600">{emailError}</p>}
+                {emailError !== null && <div className="text-xs text-red-600">{emailError || "Erreur inconnue"}</div>}
 
                 <button
                   type="submit"
@@ -441,7 +441,7 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
                   />
                 </div>
 
-                {codeError && <p className="text-xs text-red-600">{codeError}</p>}
+                {codeError !== null && <div className="text-xs text-red-600">{codeError || "Erreur inconnue"}</div>}
 
                 <button
                   type="submit"

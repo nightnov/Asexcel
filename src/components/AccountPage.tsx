@@ -131,7 +131,7 @@ export default function AccountPage({ email, name, plan, planType }: AccountPage
               <Check className="h-3.5 w-3.5" /> {ac.nameSaved}
             </p>
           )}
-          {saveStatus === "error" && saveError && <p className="mt-2 text-xs text-red-600">{saveError}</p>}
+          {saveStatus === "error" && <div className="mt-2 text-xs text-red-600">{saveError || "Erreur inconnue"}</div>}
         </div>
 
         {/* Plan section */}
