@@ -171,6 +171,7 @@ export const dictionaries = {
       resendCode: "Renvoyer le code",
       resendCodeIn: "Renvoyer dans {seconds}s",
       invalidCode: "Code invalide ou expiré. Réessayez.",
+      unknownError: "Une erreur inattendue est survenue. Réessayez.",
       changeEmail: "← Modifier l'adresse e-mail",
     },
     quota: {
@@ -879,6 +880,7 @@ export const dictionaries = {
       resendCode: "Resend code",
       resendCodeIn: "Resend in {seconds}s",
       invalidCode: "Invalid or expired code. Try again.",
+      unknownError: "Something went wrong. Please try again.",
       changeEmail: "← Change e-mail address",
     },
     quota: {
@@ -1587,6 +1589,7 @@ export const dictionaries = {
       resendCode: "Reenviar código",
       resendCodeIn: "Reenviar en {seconds}s",
       invalidCode: "Código inválido o caducado. Inténtalo de nuevo.",
+      unknownError: "Ha ocurrido un error inesperado. Inténtalo de nuevo.",
       changeEmail: "← Cambiar la dirección de correo",
     },
     quota: {
@@ -2295,6 +2298,7 @@ export const dictionaries = {
       resendCode: "Code erneut senden",
       resendCodeIn: "Erneut senden in {seconds}s",
       invalidCode: "Ungültiger oder abgelaufener Code. Versuchen Sie es erneut.",
+      unknownError: "Ein unerwarteter Fehler ist aufgetreten. Versuchen Sie es erneut.",
       changeEmail: "← E-Mail-Adresse ändern",
     },
     quota: {
@@ -3003,6 +3007,7 @@ export const dictionaries = {
       resendCode: "Reenviar código",
       resendCodeIn: "Reenviar em {seconds}s",
       invalidCode: "Código inválido ou expirado. Tente novamente.",
+      unknownError: "Ocorreu um erro inesperado. Tente novamente.",
       changeEmail: "← Alterar endereço de e-mail",
     },
     quota: {
@@ -3711,6 +3716,7 @@ export const dictionaries = {
       resendCode: "إعادة إرسال الرمز",
       resendCodeIn: "إعادة الإرسال خلال {seconds} ثانية",
       invalidCode: "رمز غير صالح أو منتهي الصلاحية. حاول مرة أخرى.",
+      unknownError: "حدث خطأ غير متوقع. حاول مرة أخرى.",
       changeEmail: "← تغيير البريد الإلكتروني",
     },
     quota: {
@@ -4419,6 +4425,7 @@ export const dictionaries = {
       resendCode: "Invia di nuovo il codice",
       resendCodeIn: "Rinvia tra {seconds}s",
       invalidCode: "Codice non valido o scaduto. Riprova.",
+      unknownError: "Si è verificato un errore imprevisto. Riprova.",
       changeEmail: "← Cambia indirizzo e-mail",
     },
     quota: {
@@ -5127,6 +5134,7 @@ export const dictionaries = {
       resendCode: "Code opnieuw versturen",
       resendCodeIn: "Opnieuw versturen over {seconds}s",
       invalidCode: "Ongeldige of verlopen code. Probeer het opnieuw.",
+      unknownError: "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
       changeEmail: "← E-mailadres wijzigen",
     },
     quota: {
@@ -5835,6 +5843,7 @@ export const dictionaries = {
       resendCode: "Wyślij kod ponownie",
       resendCodeIn: "Wyślij ponownie za {seconds}s",
       invalidCode: "Nieprawidłowy lub wygasły kod. Spróbuj ponownie.",
+      unknownError: "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
       changeEmail: "← Zmień adres e-mail",
     },
     quota: {
@@ -6543,6 +6552,7 @@ export const dictionaries = {
       resendCode: "Kodu tekrar gönder",
       resendCodeIn: "{seconds}s içinde tekrar gönder",
       invalidCode: "Geçersiz veya süresi dolmuş kod. Tekrar deneyin.",
+      unknownError: "Beklenmeyen bir hata oluştu. Tekrar deneyin.",
       changeEmail: "← E-posta adresini değiştir",
     },
     quota: {
@@ -7251,6 +7261,7 @@ export const dictionaries = {
       resendCode: "Отправить код повторно",
       resendCodeIn: "Повторная отправка через {seconds}с",
       invalidCode: "Неверный или истёкший код. Попробуйте снова.",
+      unknownError: "Произошла непредвиденная ошибка. Попробуйте снова.",
       changeEmail: "← Изменить адрес e-mail",
     },
     quota: {
@@ -7959,6 +7970,7 @@ export const dictionaries = {
       resendCode: "コードを再送信",
       resendCodeIn: "{seconds}秒後に再送信",
       invalidCode: "コードが無効か期限切れです。もう一度お試しください。",
+      unknownError: "予期しないエラーが発生しました。もう一度お試しください。",
       changeEmail: "← メールアドレスを変更",
     },
     quota: {
@@ -8667,6 +8679,7 @@ export const dictionaries = {
       resendCode: "重新发送验证码",
       resendCodeIn: "{seconds}秒后重新发送",
       invalidCode: "验证码无效或已过期，请重试。",
+      unknownError: "发生意外错误，请重试。",
       changeEmail: "← 更改电子邮件地址",
     },
     quota: {
@@ -9375,6 +9388,7 @@ export const dictionaries = {
       resendCode: "코드 재전송",
       resendCodeIn: "{seconds}초 후 재전송",
       invalidCode: "코드가 유효하지 않거나 만료되었습니다. 다시 시도하세요.",
+      unknownError: "예기치 않은 오류가 발생했습니다. 다시 시도하세요.",
       changeEmail: "← 이메일 주소 변경",
     },
     quota: {

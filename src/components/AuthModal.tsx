@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
+import { getAuthErrorMessage } from "@/lib/authError";
 import { LockIcon, SparklesIcon } from "@/components/icons/ToolIcons";
 import { useLocale } from "@/components/LocaleProvider";
 
@@ -175,15 +176,22 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
     }
     setOauthLoading(provider);
     setOauthError(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-    // On success the browser navigates away to the provider immediately —
-    // no local state to reset. We only ever get here on failure (provider
-    // not enabled in the Supabase dashboard, network issue, etc.).
-    if (error) {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      // On success the browser navigates away to the provider immediately —
+      // no local state to reset. We only ever get here on failure (provider
+      // not enabled in the Supabase dashboard, network issue, etc.).
+      if (error) {
+        console.error("Erreur Supabase OAuth :", error);
+        setOauthError(t.auth.oauthUnavailable);
+        setOauthLoading(null);
+      }
+    } catch (error) {
+      console.error("Erreur Supabase OAuth :", error);
       setOauthError(t.auth.oauthUnavailable);
       setOauthLoading(null);
     }
@@ -192,22 +200,30 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
   async function sendCode() {
     setEmailStatus("sending");
     setEmailError(null);
-    const supabase = createClient();
-    // No emailRedirectTo: this deliberately requests a numeric OTP rather
-    // than a magic link, so a login can't be silently consumed by an email
-    // client/security scanner prefetching the link before the user clicks it.
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true },
-    });
-    if (error) {
+    try {
+      const supabase = createClient();
+      // No emailRedirectTo: this deliberately requests a numeric OTP rather
+      // than a magic link, so a login can't be silently consumed by an email
+      // client/security scanner prefetching the link before the user clicks it.
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: true },
+      });
+      if (error) {
+        console.error("Erreur Supabase OTP :", error);
+        setEmailStatus("error");
+        setEmailError(getAuthErrorMessage(error, t.auth.unknownError));
+        return false;
+      }
+      setEmailStatus("sent");
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
+      return true;
+    } catch (error) {
+      console.error("Erreur Supabase OTP :", error);
       setEmailStatus("error");
-      setEmailError(error.message);
+      setEmailError(getAuthErrorMessage(error, t.auth.unknownError));
       return false;
     }
-    setEmailStatus("sent");
-    setResendCooldown(RESEND_COOLDOWN_SECONDS);
-    return true;
   }
 
   async function handleEmailSubmit(event: FormEvent) {
@@ -229,16 +245,23 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
     event.preventDefault();
     setCodeStatus("verifying");
     setCodeError(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
-    if (error) {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+      if (error) {
+        console.error("Erreur Supabase verifyOtp :", error);
+        setCodeStatus("error");
+        setCodeError(t.auth.invalidCode);
+        return;
+      }
+      handleClose();
+      router.push("/chat");
+      router.refresh();
+    } catch (error) {
+      console.error("Erreur Supabase verifyOtp :", error);
       setCodeStatus("error");
-      setCodeError(t.auth.invalidCode);
-      return;
+      setCodeError(getAuthErrorMessage(error, t.auth.unknownError));
     }
-    handleClose();
-    router.push("/chat");
-    router.refresh();
   }
 
   return (

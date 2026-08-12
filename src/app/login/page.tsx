@@ -5,6 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
+import { getAuthErrorMessage } from "@/lib/authError";
 import { useLocale } from "@/components/LocaleProvider";
 
 type Step = "email" | "code";
@@ -197,16 +198,24 @@ export default function LoginPage() {
   async function sendCode() {
     setSendStatus("sending");
     setSendError(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
-    if (error) {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+      if (error) {
+        console.error("Erreur Supabase OTP :", error);
+        setSendStatus("error");
+        setSendError(getAuthErrorMessage(error, t.auth.unknownError));
+        return false;
+      }
+      setSendStatus("idle");
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
+      return true;
+    } catch (error) {
+      console.error("Erreur Supabase OTP :", error);
       setSendStatus("error");
-      setSendError(error.message);
+      setSendError(getAuthErrorMessage(error, t.auth.unknownError));
       return false;
     }
-    setSendStatus("idle");
-    setResendCooldown(RESEND_COOLDOWN_SECONDS);
-    return true;
   }
 
   async function handleEmailSubmit(event: FormEvent) {
@@ -228,14 +237,21 @@ export default function LoginPage() {
     setVerifyStatus("verifying");
     setVerifyError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
-    if (error) {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+      if (error) {
+        console.error("Erreur Supabase verifyOtp :", error);
+        setVerifyStatus("error");
+        setVerifyError(t.auth.invalidCode);
+        return;
+      }
+      goToChat();
+    } catch (error) {
+      console.error("Erreur Supabase verifyOtp :", error);
       setVerifyStatus("error");
-      setVerifyError(t.auth.invalidCode);
-      return;
+      setVerifyError(getAuthErrorMessage(error, t.auth.unknownError));
     }
-    goToChat();
   }
 
   async function handleOAuth(provider: OAuthProvider) {
@@ -245,12 +261,19 @@ export default function LoginPage() {
     }
     setOauthLoading(provider);
     setOauthError(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-    if (error) {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) {
+        console.error("Erreur Supabase OAuth :", error);
+        setOauthError(t.auth.oauthUnavailable);
+        setOauthLoading(null);
+      }
+    } catch (error) {
+      console.error("Erreur Supabase OAuth :", error);
       setOauthError(t.auth.oauthUnavailable);
       setOauthLoading(null);
     }
