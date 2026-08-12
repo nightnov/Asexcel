@@ -9,6 +9,9 @@ import { useLocale } from "@/components/LocaleProvider";
 
 type OAuthProvider = "google" | "apple" | "azure";
 type EmailStatus = "idle" | "sending" | "sent" | "error";
+type CodeStatus = "idle" | "verifying" | "error";
+
+const RESEND_COOLDOWN_SECONDS = 30;
 
 // The exact icon set actually configured for the tool cards elsewhere in
 // the app (see TOOLS in src/app/page.tsx) — not a generic placeholder set.
@@ -115,13 +118,24 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
   const router = useRouter();
   const { t } = useLocale();
 
-  const [mode, setMode] = useState<"options" | "email">("options");
+  const [mode, setMode] = useState<"options" | "email" | "code">("options");
   const [email, setEmail] = useState("");
   const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
   const [emailError, setEmailError] = useState<string | null>(null);
 
+  const [code, setCode] = useState("");
+  const [codeStatus, setCodeStatus] = useState<CodeStatus>("idle");
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
   const [oauthError, setOauthError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => setResendCooldown((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   if (!open) return null;
 
@@ -134,6 +148,10 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
       setEmail("");
       setEmailStatus("idle");
       setEmailError(null);
+      setCode("");
+      setCodeStatus("idle");
+      setCodeError(null);
+      setResendCooldown(0);
       setOauthError(null);
     }, 200);
   }
@@ -160,6 +178,27 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
     }
   }
 
+  async function sendCode() {
+    setEmailStatus("sending");
+    setEmailError(null);
+    const supabase = createClient();
+    // No emailRedirectTo: this deliberately requests a numeric OTP rather
+    // than a magic link, so a login can't be silently consumed by an email
+    // client/security scanner prefetching the link before the user clicks it.
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true },
+    });
+    if (error) {
+      setEmailStatus("error");
+      setEmailError(error.message);
+      return false;
+    }
+    setEmailStatus("sent");
+    setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    return true;
+  }
+
   async function handleEmailSubmit(event: FormEvent) {
     event.preventDefault();
     if (AUTH_DISABLED) {
@@ -167,19 +206,28 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
       handleClose();
       return;
     }
-    setEmailStatus("sending");
-    setEmailError(null);
+    if (await sendCode()) setMode("code");
+  }
+
+  async function handleResendCode() {
+    if (resendCooldown > 0) return;
+    await sendCode();
+  }
+
+  async function handleCodeSubmit(event: FormEvent) {
+    event.preventDefault();
+    setCodeStatus("verifying");
+    setCodeError(null);
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    });
+    const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
     if (error) {
-      setEmailStatus("error");
-      setEmailError(error.message);
+      setCodeStatus("error");
+      setCodeError(t.auth.invalidCode);
       return;
     }
-    setEmailStatus("sent");
+    handleClose();
+    router.push("/chat");
+    router.refresh();
   }
 
   return (
@@ -280,45 +328,38 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
                 onClick={() => setMode("email")}
               />
             </div>
-          ) : (
+          ) : mode === "email" ? (
             <div>
-              {emailStatus === "sent" ? (
-                <div className="rounded-xl bg-[#E4F5EC] p-4 text-sm leading-relaxed text-[#166B44]">
-                  {t.auth.linkSentPrefix} <strong>{email}</strong>
-                  {t.auth.linkSentSuffix}
+              <form onSubmit={handleEmailSubmit} className="space-y-3">
+                <div>
+                  <label htmlFor="auth-modal-email" className="mb-1.5 block text-xs font-medium text-gray-600">
+                    {t.auth.emailAddress}
+                  </label>
+                  <input
+                    id="auth-modal-email"
+                    type="email"
+                    required
+                    autoFocus
+                    placeholder={t.auth.emailPlaceholder}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
+                  />
                 </div>
-              ) : (
-                <form onSubmit={handleEmailSubmit} className="space-y-3">
-                  <div>
-                    <label htmlFor="auth-modal-email" className="mb-1.5 block text-xs font-medium text-gray-600">
-                      {t.auth.emailAddress}
-                    </label>
-                    <input
-                      id="auth-modal-email"
-                      type="email"
-                      required
-                      autoFocus
-                      placeholder={t.auth.emailPlaceholder}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
-                    />
-                  </div>
 
-                  {emailError && <p className="text-xs text-red-600">{emailError}</p>}
+                {emailError && <p className="text-xs text-red-600">{emailError}</p>}
 
-                  <button
-                    type="submit"
-                    disabled={emailStatus === "sending"}
-                    className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:opacity-60"
-                  >
-                    {emailStatus === "sending" && (
-                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                    )}
-                    {emailStatus === "sending" ? t.auth.sendingLink : t.auth.receiveLink}
-                  </button>
-                </form>
-              )}
+                <button
+                  type="submit"
+                  disabled={emailStatus === "sending"}
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:opacity-60"
+                >
+                  {emailStatus === "sending" && (
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  )}
+                  {emailStatus === "sending" ? t.auth.sendingLink : t.auth.receiveLink}
+                </button>
+              </form>
 
               <button
                 type="button"
@@ -331,6 +372,71 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
               >
                 {t.auth.backToOptions}
               </button>
+            </div>
+          ) : (
+            <div>
+              <p className="mb-4 text-sm leading-relaxed text-gray-600">
+                {t.auth.linkSentPrefix} <strong>{email}</strong>
+                {t.auth.linkSentSuffix}
+              </p>
+
+              <form onSubmit={handleCodeSubmit} className="space-y-3">
+                <div>
+                  <label htmlFor="auth-modal-code" className="mb-1.5 block text-xs font-medium text-gray-600">
+                    {t.auth.codeLabel}
+                  </label>
+                  <input
+                    id="auth-modal-code"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    required
+                    autoFocus
+                    maxLength={6}
+                    placeholder={t.auth.codePlaceholder}
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-center text-lg tracking-[0.4em] text-gray-900 outline-none transition focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
+                  />
+                </div>
+
+                {codeError && <p className="text-xs text-red-600">{codeError}</p>}
+
+                <button
+                  type="submit"
+                  disabled={codeStatus === "verifying" || code.length !== 6}
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {codeStatus === "verifying" && (
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  )}
+                  {codeStatus === "verifying" ? t.auth.verifyingCode : t.auth.verifyCta}
+                </button>
+              </form>
+
+              <div className="mt-4 flex items-center justify-between text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("email");
+                    setEmailStatus("idle");
+                    setCode("");
+                    setCodeStatus("idle");
+                    setCodeError(null);
+                  }}
+                  className="font-medium text-gray-500 hover:text-gray-900"
+                >
+                  {t.auth.changeEmail}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={resendCooldown > 0 || emailStatus === "sending"}
+                  className="font-medium text-gray-500 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {resendCooldown > 0 ? t.auth.resendCodeIn.replace("{seconds}", String(resendCooldown)) : t.auth.resendCode}
+                </button>
+              </div>
             </div>
           )}
 

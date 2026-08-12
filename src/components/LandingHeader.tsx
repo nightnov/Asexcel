@@ -2,13 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styles from "@/app/landing.module.css";
 import AuthModal from "@/components/AuthModal";
 import { useLocale } from "@/components/LocaleProvider";
+import { useSupabaseUser } from "@/lib/useSupabaseUser";
+import { AUTH_DISABLED } from "@/lib/dev-auth";
+import { createClient } from "@/lib/supabase/client";
 
 export default function LandingHeader() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { t } = useLocale();
+  const router = useRouter();
+  const { user, loading } = useSupabaseUser();
+
+  async function handleLogout() {
+    if (AUTH_DISABLED) return;
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
 
   return (
     <>
@@ -29,12 +43,25 @@ export default function LandingHeader() {
           </nav>
 
           <div className={styles.headerActions}>
-            <Link href="/login" className={styles.linkButton}>
-              {t.nav.seConnecter}
-            </Link>
-            <button type="button" onClick={() => setAuthModalOpen(true)} className={styles.navBtnPrimary}>
-              {t.nav.sInscrire}
-            </button>
+            {loading ? null : user ? (
+              <>
+                <Link href="/compte" className={styles.linkButton}>
+                  {t.nav.monCompte}
+                </Link>
+                <button type="button" onClick={handleLogout} className={styles.navBtnPrimary}>
+                  {t.nav.seDeconnecter}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className={styles.linkButton}>
+                  {t.nav.seConnecter}
+                </Link>
+                <button type="button" onClick={() => setAuthModalOpen(true)} className={styles.navBtnPrimary}>
+                  {t.nav.sInscrire}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </header>

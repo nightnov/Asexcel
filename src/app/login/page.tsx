@@ -2,12 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { useLocale } from "@/components/LocaleProvider";
 
-type Status = "idle" | "loading" | "error";
+type Step = "email" | "code";
+type SendStatus = "idle" | "sending" | "error";
+type VerifyStatus = "idle" | "verifying" | "error";
+
+const RESEND_COOLDOWN_SECONDS = 30;
 
 function GoogleIcon() {
   return (
@@ -102,52 +106,92 @@ function LoginVisual() {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useLocale();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState<string | null>(null);
-  const [googleLoading, setGoogleLoading] = useState(false);
 
-  async function handleSubmit(event: FormEvent) {
+  const [step, setStep] = useState<Step>("email");
+  const [email, setEmail] = useState("");
+  const [sendStatus, setSendStatus] = useState<SendStatus>("idle");
+  const [sendError, setSendError] = useState<string | null>(null);
+
+  const [code, setCode] = useState("");
+  const [verifyStatus, setVerifyStatus] = useState<VerifyStatus>("idle");
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => setResendCooldown((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  function goToChat() {
+    const next = searchParams.get("next") ?? "/chat";
+    router.push(next);
+    router.refresh();
+  }
+
+  async function sendCode() {
+    setSendStatus("sending");
+    setSendError(null);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+    if (error) {
+      setSendStatus("error");
+      setSendError(error.message);
+      return false;
+    }
+    setSendStatus("idle");
+    setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    return true;
+  }
+
+  async function handleEmailSubmit(event: FormEvent) {
     event.preventDefault();
     if (AUTH_DISABLED) {
-      router.push("/chat");
+      goToChat();
       return;
     }
-    setStatus("loading");
-    setError(null);
+    if (await sendCode()) setStep("code");
+  }
+
+  async function handleResendCode() {
+    if (resendCooldown > 0) return;
+    await sendCode();
+  }
+
+  async function handleCodeSubmit(event: FormEvent) {
+    event.preventDefault();
+    setVerifyStatus("verifying");
+    setVerifyError(null);
 
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (authError) {
-      setStatus("error");
-      setError(
-        authError.message.includes("Invalid login credentials")
-          ? t.auth.invalidCredentials
-          : authError.message
-      );
+    const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+    if (error) {
+      setVerifyStatus("error");
+      setVerifyError(t.auth.invalidCode);
       return;
     }
-    router.push("/chat");
-    router.refresh();
+    goToChat();
   }
 
   async function handleGoogle() {
     if (AUTH_DISABLED) {
-      router.push("/chat");
+      goToChat();
       return;
     }
     setGoogleLoading(true);
-    setError(null);
+    setGoogleError(null);
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
-    if (authError) {
-      setError(t.auth.googleUnavailable);
+    if (error) {
+      setGoogleError(t.auth.googleUnavailable);
       setGoogleLoading(false);
     }
   }
@@ -176,69 +220,127 @@ export default function LoginPage() {
             {t.auth.welcomeSubtitle}
           </p>
 
-          <button
-            type="button"
-            onClick={handleGoogle}
-            disabled={googleLoading}
-            className="mt-8 flex h-11 w-full items-center justify-center gap-3 rounded-xl bg-white text-sm font-medium text-gray-800 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {googleLoading ? (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
-            ) : (
-              <GoogleIcon />
-            )}
-            {googleLoading ? t.auth.connecting : t.auth.continueWithGoogle}
-          </button>
+          {step === "email" && (
+            <>
+              <button
+                type="button"
+                onClick={handleGoogle}
+                disabled={googleLoading}
+                className="mt-8 flex h-11 w-full items-center justify-center gap-3 rounded-xl bg-white text-sm font-medium text-gray-800 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {googleLoading ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+                ) : (
+                  <GoogleIcon />
+                )}
+                {googleLoading ? t.auth.connecting : t.auth.continueWithGoogle}
+              </button>
 
-          <div className="relative py-5 text-center text-xs text-white/30">
-            <span className="relative bg-[#0B0F0D] px-2">{t.auth.or}</span>
-            <div className="absolute inset-x-0 top-1/2 -z-10 border-t border-white/10" />
-          </div>
+              {googleError && <p className="mt-2 text-xs text-red-400">{googleError}</p>}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div>
-              <label htmlFor="login-email" className="mb-1.5 block text-xs font-medium text-white/60">
-                {t.auth.emailLabel}
-              </label>
-              <input
-                id="login-email"
-                type="email"
-                required
-                placeholder={t.auth.emailPlaceholder}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
-              />
+              <div className="relative py-5 text-center text-xs text-white/30">
+                <span className="relative bg-[#0B0F0D] px-2">{t.auth.or}</span>
+                <div className="absolute inset-x-0 top-1/2 -z-10 border-t border-white/10" />
+              </div>
+
+              <form onSubmit={handleEmailSubmit} className="space-y-3">
+                <div>
+                  <label htmlFor="login-email" className="mb-1.5 block text-xs font-medium text-white/60">
+                    {t.auth.emailLabel}
+                  </label>
+                  <input
+                    id="login-email"
+                    type="email"
+                    required
+                    autoFocus
+                    placeholder={t.auth.emailPlaceholder}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
+                  />
+                </div>
+
+                {sendError && <p className="text-xs text-red-400">{sendError}</p>}
+
+                <button
+                  type="submit"
+                  disabled={sendStatus === "sending"}
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {sendStatus === "sending" && (
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  )}
+                  {sendStatus === "sending" ? t.auth.sendingLink : t.auth.receiveLink}
+                </button>
+              </form>
+            </>
+          )}
+
+          {step === "code" && (
+            <div className="mt-8">
+              <p className="text-sm leading-relaxed text-white/60">
+                {t.auth.linkSentPrefix} <strong className="text-white">{email}</strong>
+                {t.auth.linkSentSuffix}
+              </p>
+
+              <form onSubmit={handleCodeSubmit} className="mt-4 space-y-3">
+                <div>
+                  <label htmlFor="login-code" className="mb-1.5 block text-xs font-medium text-white/60">
+                    {t.auth.codeLabel}
+                  </label>
+                  <input
+                    id="login-code"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    required
+                    autoFocus
+                    maxLength={6}
+                    placeholder={t.auth.codePlaceholder}
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-center text-lg tracking-[0.4em] text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
+                  />
+                </div>
+
+                {verifyError && <p className="text-xs text-red-400">{verifyError}</p>}
+
+                <button
+                  type="submit"
+                  disabled={verifyStatus === "verifying" || code.length !== 6}
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {verifyStatus === "verifying" && (
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  )}
+                  {verifyStatus === "verifying" ? t.auth.verifyingCode : t.auth.verifyCta}
+                </button>
+              </form>
+
+              <div className="mt-4 flex items-center justify-between text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep("email");
+                    setCode("");
+                    setVerifyStatus("idle");
+                    setVerifyError(null);
+                  }}
+                  className="font-medium text-white/50 hover:text-white"
+                >
+                  {t.auth.changeEmail}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={resendCooldown > 0 || sendStatus === "sending"}
+                  className="font-medium text-white/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {resendCooldown > 0 ? t.auth.resendCodeIn.replace("{seconds}", String(resendCooldown)) : t.auth.resendCode}
+                </button>
+              </div>
             </div>
-
-            <div>
-              <label htmlFor="login-password" className="mb-1.5 block text-xs font-medium text-white/60">
-                {t.auth.passwordLabel}
-              </label>
-              <input
-                id="login-password"
-                type="password"
-                required
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
-              />
-            </div>
-
-            {error && <p className="text-xs text-red-400">{error}</p>}
-
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {status === "loading" && (
-                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-              )}
-              {status === "loading" ? t.auth.connecting : t.auth.signInCta}
-            </button>
-          </form>
+          )}
 
           <p className="mt-8 text-xs leading-relaxed text-white/30">
             {t.auth.agreeStart}{" "}
