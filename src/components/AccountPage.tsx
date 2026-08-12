@@ -10,15 +10,17 @@ import type { UserPlan, ProPlanType } from "@/types/database";
 interface AccountPageProps {
   userId: string;
   email: string | null;
+  name: string | null;
   plan: UserPlan;
   planType: ProPlanType | null;
 }
 
-export default function AccountPage({ email, plan, planType }: AccountPageProps) {
+export default function AccountPage({ email, name, plan, planType }: AccountPageProps) {
   const { t } = useLocale();
   const ac = t.account;
   const searchParams = useSearchParams();
   const checkoutSuccess = searchParams.get("checkout") === "success";
+  const displayName = name?.trim() || t.userMenu.unknownName;
 
   const PLAN_TYPE_LABEL: Record<ProPlanType, string> = {
     monthly: ac.planTypeMonthly,
@@ -35,7 +37,8 @@ export default function AccountPage({ email, plan, planType }: AccountPageProps)
         </Link>
 
         <h1 className="mt-3 text-2xl font-semibold text-ink">{ac.title}</h1>
-        {email && <p className="mt-1 text-sm text-slate-500">{email}</p>}
+        <p className="mt-1 text-sm font-medium text-slate-700">{displayName}</p>
+        {email && <p className="text-sm text-slate-500">{email}</p>}
 
         {checkoutSuccess && (
           <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">

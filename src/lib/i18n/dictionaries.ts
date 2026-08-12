@@ -228,6 +228,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "Assistant IA",
       tools: "Outils Excel",
+      unknownName: "Inconnu",
     },
     checkout: {
       configureTitle: "Configurer votre forfait",
@@ -937,6 +938,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "AI Assistant",
       tools: "Excel Tools",
+      unknownName: "Unknown",
     },
     checkout: {
       configureTitle: "Set up your plan",
@@ -1646,6 +1648,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "Asistente de IA",
       tools: "Herramientas Excel",
+      unknownName: "Desconocido",
     },
     checkout: {
       configureTitle: "Configura tu plan",
@@ -2355,6 +2358,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "KI-Assistent",
       tools: "Excel-Tools",
+      unknownName: "Unbekannt",
     },
     checkout: {
       configureTitle: "Ihren Plan einrichten",
@@ -3064,6 +3068,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "Assistente de IA",
       tools: "Ferramentas Excel",
+      unknownName: "Desconhecido",
     },
     checkout: {
       configureTitle: "Configure seu plano",
@@ -3773,6 +3778,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "مساعد الذكاء الاصطناعي",
       tools: "أدوات إكسل",
+      unknownName: "غير معروف",
     },
     checkout: {
       configureTitle: "إعداد خطتك",
@@ -4482,6 +4488,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "Assistente IA",
       tools: "Strumenti Excel",
+      unknownName: "Sconosciuto",
     },
     checkout: {
       configureTitle: "Configura il tuo piano",
@@ -5191,6 +5198,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "AI-assistent",
       tools: "Excel-tools",
+      unknownName: "Onbekend",
     },
     checkout: {
       configureTitle: "Stel je abonnement in",
@@ -5900,6 +5908,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "Asystent AI",
       tools: "Narzędzia Excel",
+      unknownName: "Nieznany",
     },
     checkout: {
       configureTitle: "Skonfiguruj swój plan",
@@ -6609,6 +6618,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "Yapay Zeka Asistanı",
       tools: "Excel Araçları",
+      unknownName: "Bilinmiyor",
     },
     checkout: {
       configureTitle: "Planınızı ayarlayın",
@@ -7318,6 +7328,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "ИИ-ассистент",
       tools: "Инструменты Excel",
+      unknownName: "Неизвестно",
     },
     checkout: {
       configureTitle: "Настройте тариф",
@@ -8027,6 +8038,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "AIアシスタント",
       tools: "Excelツール",
+      unknownName: "不明",
     },
     checkout: {
       configureTitle: "プランを設定",
@@ -8736,6 +8748,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "AI 助手",
       tools: "Excel 工具",
+      unknownName: "未知",
     },
     checkout: {
       configureTitle: "设置您的套餐",
@@ -9445,6 +9458,7 @@ export const dictionaries = {
     userMenu: {
       assistant: "AI 어시스턴트",
       tools: "엑셀 도구",
+      unknownName: "알 수 없음",
     },
     checkout: {
       configureTitle: "플랜 설정",

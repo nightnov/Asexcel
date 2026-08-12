@@ -34,9 +34,12 @@ function initialsFor(user: User): string {
   return source.trim().charAt(0).toUpperCase();
 }
 
-function displayNameFor(user: User): string {
+function displayNameFor(user: User, unknownLabel: string): string {
   const name = (user.user_metadata?.full_name as string | undefined) ?? (user.user_metadata?.name as string | undefined);
-  return name ?? user.email?.split("@")[0] ?? "";
+  const trimmed = name?.trim();
+  if (trimmed) return trimmed;
+  const emailPrefix = user.email?.split("@")[0]?.trim();
+  return emailPrefix || unknownLabel;
 }
 
 export default function UserMenu({ user }: { user: User }) {
@@ -96,7 +99,7 @@ export default function UserMenu({ user }: { user: User }) {
           className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_16px_48px_-12px_rgba(15,23,42,0.25)]"
         >
           <div className="px-4 py-3.5">
-            <p className="truncate text-sm font-semibold text-gray-900">{displayNameFor(user)}</p>
+            <p className="truncate text-sm font-semibold text-gray-900">{displayNameFor(user, t.userMenu.unknownName)}</p>
             <p className="truncate text-xs text-gray-500">{user.email}</p>
           </div>
 
