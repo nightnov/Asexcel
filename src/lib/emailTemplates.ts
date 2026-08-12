@@ -98,6 +98,33 @@ Tu peux gérer ton abonnement (facturation, annulation) à tout moment depuis to
   return { subject, html, text };
 }
 
+export function buildOtpCodeEmail(code: string): EmailContent {
+  const subject = `${code} — ton code de connexion Asexcel`;
+
+  const html = shell(`
+      <p style="margin:0 0 16px;font-size:18px;font-weight:600;">Ton code de connexion</p>
+      <p style="margin:0 0 20px;">Saisis ce code à 6 chiffres pour te connecter à Asexcel :</p>
+      <table role="presentation" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="border-radius:10px;background:${FOOTER_BG};padding:16px 28px;">
+            <span style="font-size:28px;font-weight:700;letter-spacing:0.3em;color:${INK};">${code}</span>
+          </td>
+        </tr>
+      </table>
+      <p style="margin:20px 0 0;color:${INK_SOFT};font-size:13px;">Ce code expire dans quelques minutes. Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail.</p>
+    `);
+
+  const text = `Ton code de connexion Asexcel : ${code}
+
+Saisis ce code à 6 chiffres pour te connecter. Il expire dans quelques minutes.
+
+Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail.
+
+— Asexcel`;
+
+  return { subject, html, text };
+}
+
 export function buildWelcomeEmail(): EmailContent {
   const subject = "Bienvenue sur Asexcel !";
 

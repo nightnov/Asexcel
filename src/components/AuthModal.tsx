@@ -201,25 +201,31 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
     setEmailStatus("sending");
     setEmailError(null);
     try {
-      const supabase = createClient();
-      // No emailRedirectTo: this deliberately requests a numeric OTP rather
-      // than a magic link, so a login can't be silently consumed by an email
-      // client/security scanner prefetching the link before the user clicks it.
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: true },
+      // Goes through our own /api/auth/send-code instead of calling
+      // supabase.auth.signInWithOtp() directly — that call both generates
+      // the code AND sends the e-mail via Supabase's own mailer in one
+      // step, so a broken/misconfigured mailer on Supabase's side fails
+      // the whole request (seen as a 500 AuthRetryableFetchError) before a
+      // code is ever generated. The server route generates the code via
+      // the admin API (no mailer involved) and delivers it through the
+      // Resend pipeline already used for every other e-mail in this app.
+      const res = await fetch("/api/auth/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
-      if (error) {
-        logSupabaseError("Erreur Supabase OTP :", error);
+      const body: { error?: string } = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        logSupabaseError("Erreur envoi code OTP :", body);
         setEmailStatus("error");
-        setEmailError(getAuthErrorMessage(error, t.auth.unknownError));
+        setEmailError(body.error || t.auth.unknownError);
         return false;
       }
       setEmailStatus("sent");
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
       return true;
     } catch (error) {
-      logSupabaseError("Erreur Supabase OTP :", error);
+      logSupabaseError("Erreur envoi code OTP :", error);
       setEmailStatus("error");
       setEmailError(getAuthErrorMessage(error, t.auth.unknownError));
       return false;

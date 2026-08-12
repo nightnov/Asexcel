@@ -265,12 +265,19 @@ alter table public.support_requests enable row level security;
 -- ---------------------------------------------------------------------------
 create table if not exists public.email_logs (
   id uuid primary key default uuid_generate_v4(),
-  category text not null check (category in ('support', 'pro_confirmation', 'welcome')),
+  category text not null check (category in ('support', 'pro_confirmation', 'welcome', 'otp_code')),
   recipient text not null,
   subject text not null,
   status text not null check (status in ('sent', 'failed')),
   error text,
   created_at timestamptz not null default now()
 );
+
+-- Safe on repeat runs: widens the category check if this table already
+-- existed before 'otp_code' (custom OTP delivery, bypassing Supabase Auth's
+-- own mailer) was added as a category.
+alter table public.email_logs drop constraint if exists email_logs_category_check;
+alter table public.email_logs add constraint email_logs_category_check
+  check (category in ('support', 'pro_confirmation', 'welcome', 'otp_code'));
 
 alter table public.email_logs enable row level security;

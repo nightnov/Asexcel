@@ -199,19 +199,25 @@ export default function LoginPage() {
     setSendStatus("sending");
     setSendError(null);
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
-      if (error) {
-        logSupabaseError("Erreur Supabase OTP :", error);
+      // See AuthModal.tsx's sendCode for why this goes through our own
+      // route instead of supabase.auth.signInWithOtp() directly.
+      const res = await fetch("/api/auth/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const body: { error?: string } = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        logSupabaseError("Erreur envoi code OTP :", body);
         setSendStatus("error");
-        setSendError(getAuthErrorMessage(error, t.auth.unknownError));
+        setSendError(body.error || t.auth.unknownError);
         return false;
       }
       setSendStatus("idle");
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
       return true;
     } catch (error) {
-      logSupabaseError("Erreur Supabase OTP :", error);
+      logSupabaseError("Erreur envoi code OTP :", error);
       setSendStatus("error");
       setSendError(getAuthErrorMessage(error, t.auth.unknownError));
       return false;

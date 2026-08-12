@@ -160,7 +160,7 @@ export interface Database {
       email_logs: {
         Row: {
           id: string;
-          category: "support" | "pro_confirmation" | "welcome";
+          category: "support" | "pro_confirmation" | "welcome" | "otp_code";
           recipient: string;
           subject: string;
           status: "sent" | "failed";
@@ -169,7 +169,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          category: "support" | "pro_confirmation" | "welcome";
+          category: "support" | "pro_confirmation" | "welcome" | "otp_code";
           recipient: string;
           subject: string;
           status: "sent" | "failed";

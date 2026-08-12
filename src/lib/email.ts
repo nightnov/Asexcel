@@ -11,7 +11,7 @@ import { COMPANY_INFO } from "@/lib/companyConfig";
  */
 export const EMAIL_FROM = process.env.EMAIL_FROM || COMPANY_INFO.emailFromAddress;
 
-export type EmailCategory = "support" | "pro_confirmation" | "welcome";
+export type EmailCategory = "support" | "pro_confirmation" | "welcome" | "otp_code";
 
 interface SendEmailInput {
   to: string;
