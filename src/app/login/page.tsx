@@ -8,7 +8,7 @@ import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { useLocale } from "@/components/LocaleProvider";
 
-type Mode = "credentials" | "otpEmail" | "otpCode" | "success";
+type Mode = "options" | "credentials" | "otpEmail" | "otpCode" | "success";
 type AuthTab = "login" | "signup";
 type Status = "idle" | "sending" | "error";
 type OAuthProvider = "google" | "facebook" | "apple" | "azure";
@@ -55,6 +55,15 @@ function MicrosoftIcon() {
       <rect x="13" y="2" width="9" height="9" fill="#7FBA00" />
       <rect x="2" y="13" width="9" height="9" fill="#00A4EF" />
       <rect x="13" y="13" width="9" height="9" fill="#FFB900" />
+    </svg>
+  );
+}
+
+function EnvelopeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M3.5 6.5l8.5 6.5 8.5-6.5" />
     </svg>
   );
 }
@@ -180,7 +189,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const { t } = useLocale();
 
-  const [mode, setMode] = useState<Mode>("credentials");
+  const [mode, setMode] = useState<Mode>("options");
   const [authTab, setAuthTab] = useState<AuthTab>("login");
 
   const [email, setEmail] = useState("");
@@ -398,7 +407,7 @@ export default function LoginPage() {
               <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{t.auth.welcomeTitle}</h1>
               <p className="mt-3 text-sm leading-relaxed text-white/50">{t.auth.welcomeSubtitle}</p>
 
-              {mode === "credentials" && (
+              {mode === "options" && (
                 <>
                   <div className="mt-8 space-y-2.5">
                     <OAuthButton
@@ -438,7 +447,19 @@ export default function LoginPage() {
                     <div className="absolute inset-x-0 top-1/2 -z-10 border-t border-white/10" />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-1 rounded-xl bg-white/5 p-1">
+                  <OAuthButton
+                    icon={<EnvelopeIcon />}
+                    label={t.auth.continueWithEmail}
+                    loading={false}
+                    disabled={oauthLoading !== null}
+                    onClick={() => setMode("credentials")}
+                  />
+                </>
+              )}
+
+              {mode === "credentials" && (
+                <>
+                  <div className="mt-8 grid grid-cols-2 gap-1 rounded-xl bg-white/5 p-1">
                     <button
                       type="button"
                       onClick={() => {
@@ -521,6 +542,17 @@ export default function LoginPage() {
                     className="mt-4 w-full text-center text-xs font-medium text-white/50 hover:text-white"
                   >
                     {t.auth.useOtpLink}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("options");
+                      setCredError(null);
+                    }}
+                    className="mt-2 w-full text-center text-xs font-medium text-white/30 hover:text-white/70"
+                  >
+                    {t.auth.backToOptions}
                   </button>
                 </>
               )}

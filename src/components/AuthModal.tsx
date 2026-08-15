@@ -9,7 +9,7 @@ import { LockIcon, SparklesIcon } from "@/components/icons/ToolIcons";
 import { useLocale } from "@/components/LocaleProvider";
 
 type OAuthProvider = "google" | "facebook" | "apple" | "azure";
-type Mode = "credentials" | "otpEmail" | "otpCode" | "success";
+type Mode = "options" | "credentials" | "otpEmail" | "otpCode" | "success";
 type AuthTab = "login" | "signup";
 type Status = "idle" | "sending" | "error";
 
@@ -65,6 +65,15 @@ function MicrosoftIcon() {
       <rect x="13" y="2" width="9" height="9" fill="#7FBA00" />
       <rect x="2" y="13" width="9" height="9" fill="#00A4EF" />
       <rect x="13" y="13" width="9" height="9" fill="#FFB900" />
+    </svg>
+  );
+}
+
+function EnvelopeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M3.5 6.5l8.5 6.5 8.5-6.5" />
     </svg>
   );
 }
@@ -133,7 +142,7 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
   const router = useRouter();
   const { t } = useLocale();
 
-  const [mode, setMode] = useState<Mode>("credentials");
+  const [mode, setMode] = useState<Mode>("options");
   const [authTab, setAuthTab] = useState<AuthTab>("login");
 
   const [email, setEmail] = useState("");
@@ -171,7 +180,7 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
   if (!open) return null;
 
   function resetState() {
-    setMode("credentials");
+    setMode("options");
     setAuthTab("login");
     setEmail("");
     setPassword("");
@@ -431,7 +440,7 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
                 <p className="mt-1.5 text-sm text-gray-500">{t.auth.modalSubtitle}</p>
               </div>
 
-              {mode === "credentials" ? (
+              {mode === "options" ? (
                 <div className="space-y-2.5">
                   <SsoButton
                     icon={<GoogleIcon />}
@@ -467,6 +476,16 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
                     <div className="absolute inset-x-0 top-1/2 -z-10 border-t border-gray-200" />
                   </div>
 
+                  <SsoButton
+                    icon={<EnvelopeIcon />}
+                    label={t.auth.continueWithEmail}
+                    loading={false}
+                    disabled={oauthLoading !== null}
+                    onClick={() => setMode("credentials")}
+                  />
+                </div>
+              ) : mode === "credentials" ? (
+                <div>
                   <div className="grid grid-cols-2 gap-1 rounded-xl bg-gray-100 p-1">
                     <button
                       type="button"
@@ -546,9 +565,20 @@ export default function AuthModal({ open, onClose }: { open: boolean; onClose: (
                       setMode("otpEmail");
                       setCredError(null);
                     }}
-                    className="mt-1 w-full text-center text-xs font-medium text-gray-500 hover:text-gray-900"
+                    className="mt-3 w-full text-center text-xs font-medium text-gray-500 hover:text-gray-900"
                   >
                     {t.auth.useOtpLink}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("options");
+                      setCredError(null);
+                    }}
+                    className="mt-2 w-full text-center text-xs font-medium text-gray-400 hover:text-gray-700"
+                  >
+                    {t.auth.backToOptions}
                   </button>
                 </div>
               ) : mode === "otpEmail" ? (
