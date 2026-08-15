@@ -47,7 +47,7 @@ function shell(bodyHtml: string, cta?: { label: string; href: string }): string 
                 <table role="presentation" cellpadding="0" cellspacing="0">
                   <tr>
                     <td style="padding-right:10px;">
-                      <img src="${SITE_URL}/logo-transparent.png" alt="" width="28" height="28" style="display:block;width:28px;height:28px;object-fit:contain;" />
+                      <img src="${SITE_URL}/logo.png" alt="" width="28" height="28" style="display:block;width:28px;height:28px;border-radius:6px;object-fit:cover;" />
                     </td>
                     <td style="font-size:18px;font-weight:700;color:#FFFFFF;letter-spacing:-0.01em;">Asexcel</td>
                   </tr>

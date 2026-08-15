@@ -247,7 +247,7 @@ export default function ChatWindow() {
         guestLimit={GUEST_DAILY_LIMIT}
         memberLimit={MEMBER_DAILY_LIMIT}
         labels={t.quota}
-        onCreateAccount={() => router.push("/login?mode=signup")}
+        onCreateAccount={() => router.push("/inscription")}
         onUpgrade={() => router.push("/checkout")}
       />
     </div>

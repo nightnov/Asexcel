@@ -8,75 +8,14 @@ import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { useLocale } from "@/components/LocaleProvider";
 import OtpCodeInput from "@/components/OtpCodeInput";
+import { GoogleIcon, FacebookIcon, AppleIcon, MicrosoftIcon, EnvelopeIcon, CheckCircleIcon } from "@/components/icons/AuthIcons";
 
 type Mode = "options" | "credentials" | "otpEmail" | "otpCode" | "success";
-type AuthTab = "login" | "signup";
 type Status = "idle" | "sending" | "error";
 type OAuthProvider = "google" | "facebook" | "apple" | "azure";
 
 const RESEND_COOLDOWN_SECONDS = 30;
-const MIN_PASSWORD_LENGTH = 8;
 const SUCCESS_AUTO_CONTINUE_MS = 1600;
-
-function GoogleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <path fill="#4285F4" d="M23.5 12.27c0-.82-.07-1.6-.2-2.36H12v4.47h6.47a5.54 5.54 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.56-5.17 3.56-8.74z" />
-      <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.9l-3.87-3c-1.08.72-2.46 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.1A12 12 0 0 0 12 24z" />
-      <path fill="#FBBC05" d="M5.27 14.29a7.2 7.2 0 0 1 0-4.58v-3.1H1.27a12 12 0 0 0 0 10.78l4-3.1z" />
-      <path fill="#EA4335" d="M12 4.75c1.76 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.61l4 3.1C6.22 6.86 8.87 4.75 12 4.75z" />
-    </svg>
-  );
-}
-
-function FacebookIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <path
-        fill="#1877F2"
-        d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.89v2.25h3.32l-.53 3.49h-2.79V24C19.61 23.1 24 18.1 24 12.07z"
-      />
-    </svg>
-  );
-}
-
-function AppleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="#000000" aria-hidden="true">
-      <path d="M17.05 12.54c-.03-2.6 2.12-3.85 2.22-3.91-1.21-1.77-3.1-2.01-3.77-2.04-1.6-.16-3.13.94-3.94.94-.82 0-2.06-.92-3.4-.9-1.75.03-3.37 1.02-4.27 2.58-1.82 3.16-.46 7.83 1.31 10.4.87 1.25 1.9 2.66 3.26 2.61 1.31-.05 1.8-.85 3.39-.85 1.58 0 2.02.85 3.4.82 1.4-.02 2.29-1.28 3.15-2.53 1-1.44 1.41-2.83 1.43-2.9-.03-.01-2.74-1.05-2.78-4.22z" />
-      <path d="M14.65 4.85c.72-.87 1.2-2.08 1.07-3.29-1.04.04-2.3.7-3.04 1.56-.67.77-1.25 2.01-1.09 3.19 1.16.09 2.34-.59 3.06-1.46z" />
-    </svg>
-  );
-}
-
-function MicrosoftIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <rect x="2" y="2" width="9" height="9" fill="#F25022" />
-      <rect x="13" y="2" width="9" height="9" fill="#7FBA00" />
-      <rect x="2" y="13" width="9" height="9" fill="#00A4EF" />
-      <rect x="13" y="13" width="9" height="9" fill="#FFB900" />
-    </svg>
-  );
-}
-
-function EnvelopeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="M3.5 6.5l8.5 6.5 8.5-6.5" />
-    </svg>
-  );
-}
-
-function CheckCircleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-14 w-14 text-[#1E8E5A]" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
-      <path d="M7.5 12.5l3 3 6-6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 interface OAuthButtonProps {
   icon: React.ReactNode;
@@ -185,13 +124,14 @@ function LoginVisual() {
   );
 }
 
+/** Log-in only — sign-up lives on its own page (/inscription) with its own
+ * design, not a tab switch here. */
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useLocale();
 
   const [mode, setMode] = useState<Mode>("options");
-  const [authTab, setAuthTab] = useState<AuthTab>(searchParams.get("mode") === "signup" ? "signup" : "login");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -264,47 +204,19 @@ export default function LoginPage() {
       return;
     }
     setCredError(null);
-
-    if (authTab === "signup" && password.length < MIN_PASSWORD_LENGTH) {
-      setCredStatus("error");
-      setCredError(t.auth.passwordTooShort);
-      return;
-    }
-
     setCredStatus("sending");
     try {
-      if (authTab === "login") {
-        const supabase = createClient();
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          logSupabaseError("Erreur Supabase signInWithPassword :", error);
-          setCredStatus("error");
-          setCredError(
-            error.message.includes("Invalid login credentials") ? t.auth.invalidCredentials : getAuthErrorMessage(error, t.auth.unknownError)
-          );
-          return;
-        }
-        setMode("success");
-        return;
-      }
-
-      // See src/app/api/auth/signup/route.ts for why this goes through our
-      // own route instead of supabase.auth.signUp() directly.
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const body: { error?: string } = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        logSupabaseError("Erreur inscription :", body);
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        logSupabaseError("Erreur Supabase signInWithPassword :", error);
         setCredStatus("error");
-        setCredError(body.error || t.auth.unknownError);
+        setCredError(
+          error.message.includes("Invalid login credentials") ? t.auth.invalidCredentials : getAuthErrorMessage(error, t.auth.unknownError)
+        );
         return;
       }
-      setCredStatus("idle");
-      setResendCooldown(RESEND_COOLDOWN_SECONDS);
-      setMode("otpCode");
+      setMode("success");
     } catch (error) {
       logSupabaseError("Erreur authentification :", error);
       setCredStatus("error");
@@ -485,7 +397,7 @@ export default function LoginPage() {
                         id="login-password"
                         type="password"
                         required
-                        autoComplete={authTab === "login" ? "current-password" : "new-password"}
+                        autoComplete="current-password"
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -503,20 +415,16 @@ export default function LoginPage() {
                       {credStatus === "sending" && (
                         <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                       )}
-                      {credStatus === "sending" ? t.auth.connecting : authTab === "login" ? t.auth.signInCta : t.auth.createAccountCta}
+                      {credStatus === "sending" ? t.auth.connecting : t.auth.signInCta}
                     </button>
                   </form>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAuthTab(authTab === "login" ? "signup" : "login");
-                      setCredError(null);
-                    }}
-                    className="mt-4 w-full text-center text-xs font-medium text-white/50 hover:text-white"
+                  <Link
+                    href="/inscription"
+                    className="mt-4 block w-full text-center text-xs font-medium text-white/50 hover:text-white"
                   >
-                    {authTab === "login" ? t.auth.switchToSignup : t.auth.switchToLogin}
-                  </button>
+                    {t.auth.switchToSignup}
+                  </Link>
 
                   <button
                     type="button"

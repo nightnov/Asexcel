@@ -36,7 +36,7 @@ export default function LandingHeader() {
                 <Link href="/login" className={styles.linkButton}>
                   {t.nav.seConnecter}
                 </Link>
-                <Link href="/login?mode=signup" className={styles.navBtnPrimary}>
+                <Link href="/inscription" className={styles.navBtnPrimary}>
                   {t.nav.sInscrire}
                 </Link>
               </>
