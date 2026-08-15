@@ -138,6 +138,33 @@ Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail.
   return { subject, html, text };
 }
 
+export function buildEmailChangeCodeEmail(code: string): EmailContent {
+  const subject = `${code} — confirme ta nouvelle adresse Asexcel`;
+
+  const html = shell(`
+      <p style="margin:0 0 16px;font-size:18px;font-weight:600;">Confirme ta nouvelle adresse e-mail</p>
+      <p style="margin:0 0 20px;">Saisis ce code à 6 chiffres sur Asexcel pour confirmer le changement d'adresse e-mail de ton compte :</p>
+      <table role="presentation" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="border-radius:10px;background:${FOOTER_BG};padding:16px 28px;">
+            <span style="font-size:28px;font-weight:700;letter-spacing:0.3em;color:${INK};">${code}</span>
+          </td>
+        </tr>
+      </table>
+      <p style="margin:20px 0 0;color:${INK_SOFT};font-size:13px;">Ce code expire dans quelques minutes. Si tu n'es pas à l'origine de cette demande, ignore cet e-mail — ton adresse actuelle restera inchangée.</p>
+    `);
+
+  const text = `Confirme ta nouvelle adresse e-mail Asexcel : ${code}
+
+Saisis ce code à 6 chiffres sur Asexcel pour confirmer le changement. Il expire dans quelques minutes.
+
+Si tu n'es pas à l'origine de cette demande, ignore cet e-mail — ton adresse actuelle restera inchangée.
+
+— Asexcel`;
+
+  return { subject, html, text };
+}
+
 export function buildWelcomeEmail(): EmailContent {
   const subject = "Bienvenue sur Asexcel !";
 

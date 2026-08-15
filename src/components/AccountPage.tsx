@@ -2,15 +2,17 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { CreditCard, Crown, Check, User, Shield, Link2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CreditCard, Crown, Check, User, Shield, Receipt, BarChart3, MessageSquare, Sparkles, CalendarDays } from "lucide-react";
 import LandingHeader from "@/components/LandingHeader";
+import OtpCodeInput from "@/components/OtpCodeInput";
 import { useLocale } from "@/components/LocaleProvider";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { createClient } from "@/lib/supabase/client";
 import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { TEBEX_STORE_URL } from "@/lib/tebex";
-import { GoogleIcon, FacebookIcon, AppleIcon, MicrosoftIcon } from "@/components/icons/AuthIcons";
+import { poppins, inter } from "@/lib/fonts";
+import styles from "@/app/landing.module.css";
 import type { UserPlan, ProPlanType } from "@/types/database";
 
 interface AccountPageProps {
@@ -19,18 +21,17 @@ interface AccountPageProps {
   name: string | null;
   plan: UserPlan;
   planType: ProPlanType | null;
-  linkedProviders: string[];
+  transactionId: string | null;
+  memberSince: string | null;
+  conversationCount: number;
+  aiReplyCount: number;
+  aiUsedToday: number;
+  aiDailyLimit: number;
 }
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
+type EmailStep = "idle" | "editing" | "code" | "done";
 type Tab = "profile" | "security" | "subscription";
-
-const OAUTH_PROVIDERS = [
-  { id: "google", icon: GoogleIcon, label: "Google" },
-  { id: "facebook", icon: FacebookIcon, label: "Facebook" },
-  { id: "apple", icon: AppleIcon, label: "Apple" },
-  { id: "azure", icon: MicrosoftIcon, label: "Microsoft" },
-] as const;
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -39,9 +40,33 @@ function initialsFor(name: string, email: string | null): string {
   return source.trim().charAt(0).toUpperCase();
 }
 
-export default function AccountPage({ email, name, plan, planType, linkedProviders }: AccountPageProps) {
-  const { t } = useLocale();
+function StatTile({ icon: Icon, label, value }: { icon: typeof MessageSquare; label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+      <div className="flex items-center gap-2 text-slate-400">
+        <Icon className="h-4 w-4" strokeWidth={1.75} />
+        <span className="text-xs font-medium">{label}</span>
+      </div>
+      <p className="mt-1.5 text-xl font-semibold text-slate-900">{value}</p>
+    </div>
+  );
+}
+
+export default function AccountPage({
+  email,
+  name,
+  plan,
+  planType,
+  transactionId,
+  memberSince,
+  conversationCount,
+  aiReplyCount,
+  aiUsedToday,
+  aiDailyLimit,
+}: AccountPageProps) {
+  const { t, locale } = useLocale();
   const ac = t.account;
+  const router = useRouter();
   const searchParams = useSearchParams();
   const checkoutSuccess = searchParams.get("checkout") === "success";
 
@@ -51,12 +76,19 @@ export default function AccountPage({ email, name, plan, planType, linkedProvide
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  const [currentEmail, setCurrentEmail] = useState(email ?? "");
+  const [emailStep, setEmailStep] = useState<EmailStep>("idle");
+  const [newEmail, setNewEmail] = useState("");
+  const [emailCode, setEmailCode] = useState("");
+  const [emailStatus, setEmailStatus] = useState<SaveStatus>("idle");
+  const [emailError, setEmailError] = useState<string | null>(null);
+
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordStatus, setPasswordStatus] = useState<SaveStatus>("idle");
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
-  const [linkLoading, setLinkLoading] = useState<string | null>(null);
+  const isPro = plan === "pro";
 
   const PLAN_TYPE_LABEL: Record<ProPlanType, string> = {
     monthly: ac.planTypeMonthly,
@@ -68,6 +100,10 @@ export default function AccountPage({ email, name, plan, planType, linkedProvide
     { id: "security", label: ac.sidebarSecurity, icon: Shield },
     { id: "subscription", label: ac.sidebarSubscription, icon: Crown },
   ];
+
+  const memberSinceLabel = memberSince
+    ? new Date(memberSince).toLocaleDateString(locale, { year: "numeric", month: "long" })
+    : "—";
 
   async function handleSaveName(event: FormEvent) {
     event.preventDefault();
@@ -92,6 +128,67 @@ export default function AccountPage({ email, name, plan, planType, linkedProvide
       logSupabaseError("Erreur Supabase updateUser :", error);
       setSaveStatus("error");
       setSaveError(getAuthErrorMessage(error, t.auth.unknownError));
+    }
+  }
+
+  async function handleSendEmailCode(event: FormEvent) {
+    event.preventDefault();
+    setEmailError(null);
+    if (AUTH_DISABLED) {
+      setEmailStep("code");
+      return;
+    }
+    setEmailStatus("saving");
+    try {
+      // Goes through our own route rather than updateUser({ email }) — see
+      // src/app/api/auth/change-email/route.ts for why.
+      const res = await fetch("/api/auth/change-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newEmail }),
+      });
+      const body: { error?: string } = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        logSupabaseError("Erreur changement e-mail :", body);
+        setEmailStatus("error");
+        setEmailError(body.error || t.auth.unknownError);
+        return;
+      }
+      setEmailStatus("idle");
+      setEmailStep("code");
+    } catch (error) {
+      logSupabaseError("Erreur changement e-mail :", error);
+      setEmailStatus("error");
+      setEmailError(getAuthErrorMessage(error, t.auth.unknownError));
+    }
+  }
+
+  async function handleVerifyEmailCode(event: FormEvent) {
+    event.preventDefault();
+    setEmailError(null);
+    if (AUTH_DISABLED) {
+      setCurrentEmail(newEmail);
+      setEmailStep("done");
+      return;
+    }
+    setEmailStatus("saving");
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.verifyOtp({ email: newEmail, token: emailCode, type: "email_change" });
+      if (error) {
+        logSupabaseError("Erreur Supabase verifyOtp (email_change) :", error);
+        setEmailStatus("error");
+        setEmailError(t.auth.invalidCode);
+        return;
+      }
+      setEmailStatus("idle");
+      setCurrentEmail(newEmail);
+      setEmailStep("done");
+      router.refresh();
+    } catch (error) {
+      logSupabaseError("Erreur Supabase verifyOtp (email_change) :", error);
+      setEmailStatus("error");
+      setEmailError(getAuthErrorMessage(error, t.auth.unknownError));
     }
   }
 
@@ -135,27 +232,8 @@ export default function AccountPage({ email, name, plan, planType, linkedProvide
     }
   }
 
-  async function handleLinkProvider(provider: "google" | "facebook" | "apple" | "azure") {
-    if (AUTH_DISABLED) return;
-    setLinkLoading(provider);
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.linkIdentity({
-        provider,
-        options: { redirectTo: `${window.location.origin}/compte` },
-      });
-      if (error) {
-        logSupabaseError("Erreur Supabase linkIdentity :", error);
-        setLinkLoading(null);
-      }
-    } catch (error) {
-      logSupabaseError("Erreur Supabase linkIdentity :", error);
-      setLinkLoading(null);
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className={`${styles.page} ${poppins.variable} ${inter.variable} min-h-screen`}>
       <LandingHeader />
 
       <div className="mx-auto max-w-5xl px-4 py-10">
@@ -165,11 +243,11 @@ export default function AccountPage({ email, name, plan, planType, linkedProvide
 
         <div className="mt-4 flex items-center gap-4">
           <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1E8E5A] to-[#166B44] text-xl font-semibold text-white">
-            {initialsFor(nameInput.trim(), email)}
+            {initialsFor(nameInput.trim(), currentEmail)}
           </span>
           <div>
             <h1 className="text-2xl font-semibold text-ink">{ac.title}</h1>
-            {email && <p className="text-sm text-slate-500">{email}</p>}
+            {currentEmail && <p className="text-sm text-slate-500">{currentEmail}</p>}
           </div>
         </div>
 
@@ -200,88 +278,153 @@ export default function AccountPage({ email, name, plan, planType, linkedProvide
           {/* Content */}
           <div className="flex-1 space-y-6">
             {tab === "profile" && (
-              <>
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{ac.profileSectionTitle}</p>
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{ac.profileSectionTitle}</p>
 
-                  <form onSubmit={handleSaveName} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
-                    <div className="flex-1">
-                      <label htmlFor="account-name" className="mb-1.5 block text-xs font-medium text-slate-600">
-                        {ac.nameLabel}
-                      </label>
-                      <input
-                        id="account-name"
-                        type="text"
-                        value={nameInput}
-                        onChange={(e) => {
-                          setNameInput(e.target.value);
-                          setSaveStatus("idle");
-                        }}
-                        placeholder={ac.namePlaceholder}
-                        className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={saveStatus === "saving" || nameInput.trim() === (name ?? "")}
-                      className="flex h-[42px] items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {saveStatus === "saving" && (
-                        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                      )}
-                      {saveStatus === "saving" ? ac.saving : ac.saveCta}
-                    </button>
-                  </form>
+                <form onSubmit={handleSaveName} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <div className="flex-1">
+                    <label htmlFor="account-name" className="mb-1.5 block text-xs font-medium text-slate-600">
+                      {ac.nameLabel}
+                    </label>
+                    <input
+                      id="account-name"
+                      type="text"
+                      value={nameInput}
+                      onChange={(e) => {
+                        setNameInput(e.target.value);
+                        setSaveStatus("idle");
+                      }}
+                      placeholder={ac.namePlaceholder}
+                      className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={saveStatus === "saving" || nameInput.trim() === (name ?? "")}
+                    className="flex h-[42px] items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {saveStatus === "saving" && (
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                    )}
+                    {saveStatus === "saving" ? ac.saving : ac.saveCta}
+                  </button>
+                </form>
 
-                  {saveStatus === "saved" && (
-                    <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-                      <Check className="h-3.5 w-3.5" /> {ac.nameSaved}
-                    </p>
-                  )}
-                  {saveStatus === "error" && <div className="mt-2 text-xs text-red-600">{saveError || "Erreur inconnue"}</div>}
+                {saveStatus === "saved" && (
+                  <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+                    <Check className="h-3.5 w-3.5" /> {ac.nameSaved}
+                  </p>
+                )}
+                {saveStatus === "error" && <div className="mt-2 text-xs text-red-600">{saveError || "Erreur inconnue"}</div>}
 
-                  <div className="mt-5 border-t border-slate-100 pt-4">
+                {/* E-mail — editable, verified with a code sent to the new address */}
+                <div className="mt-6 border-t border-slate-100 pt-5">
+                  <div className="flex items-center justify-between">
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{t.auth.emailLabel}</p>
-                    <p className="mt-1.5 text-sm text-slate-700">{email}</p>
+                    {emailStep === "idle" && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmailStep("editing");
+                          setNewEmail("");
+                          setEmailError(null);
+                        }}
+                        className="text-xs font-medium text-brand-600 hover:text-brand-700"
+                      >
+                        {ac.editCta}
+                      </button>
+                    )}
                   </div>
-                </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <div className="flex items-center gap-2">
-                    <Link2 className="h-4 w-4 text-slate-400" strokeWidth={1.75} />
-                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{ac.linkedAccountsTitle}</p>
-                  </div>
-                  <p className="mt-2 text-sm text-slate-500">{ac.linkedAccountsHint}</p>
+                  {emailStep === "idle" && <p className="mt-1.5 text-sm text-slate-700">{currentEmail}</p>}
 
-                  <ul className="mt-4 divide-y divide-slate-100">
-                    {OAUTH_PROVIDERS.map((provider) => {
-                      const connected = linkedProviders.includes(provider.id);
-                      return (
-                        <li key={provider.id} className="flex items-center justify-between py-2.5">
-                          <div className="flex items-center gap-3">
-                            <provider.icon />
-                            <span className="text-sm font-medium text-slate-700">{provider.label}</span>
-                          </div>
-                          {connected ? (
-                            <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-                              <Check className="h-3.5 w-3.5" /> {ac.connectedLabel}
-                            </span>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => handleLinkProvider(provider.id)}
-                              disabled={linkLoading !== null}
-                              className="text-xs font-medium text-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              {linkLoading === provider.id ? t.auth.connecting : ac.connectLabel}
-                            </button>
+                  {emailStep === "done" && (
+                    <>
+                      <p className="mt-1.5 text-sm text-slate-700">{currentEmail}</p>
+                      <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+                        <Check className="h-3.5 w-3.5" /> {ac.emailUpdated}
+                      </p>
+                    </>
+                  )}
+
+                  {emailStep === "editing" && (
+                    <form onSubmit={handleSendEmailCode} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
+                      <div className="flex-1">
+                        <label htmlFor="account-new-email" className="mb-1.5 block text-xs font-medium text-slate-600">
+                          {ac.newEmailLabel}
+                        </label>
+                        <input
+                          id="account-new-email"
+                          type="email"
+                          required
+                          autoFocus
+                          placeholder={t.auth.emailPlaceholder}
+                          value={newEmail}
+                          onChange={(e) => setNewEmail(e.target.value)}
+                          className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="submit"
+                          disabled={emailStatus === "saving" || !newEmail}
+                          className="flex h-[42px] items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {emailStatus === "saving" && (
+                            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                           )}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                          {emailStatus === "saving" ? t.auth.sendingLink : ac.sendCodeCta}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEmailStep("idle");
+                            setEmailError(null);
+                          }}
+                          className="h-[42px] rounded-xl px-3 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+                        >
+                          {ac.cancelCta}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
+                  {emailStep === "code" && (
+                    <form onSubmit={handleVerifyEmailCode} className="mt-3 max-w-sm space-y-3">
+                      <p className="text-sm leading-relaxed text-slate-600">
+                        {t.auth.linkSentPrefix} <strong>{newEmail}</strong>
+                        {t.auth.linkSentSuffix}
+                      </p>
+                      <OtpCodeInput value={emailCode} onChange={setEmailCode} disabled={emailStatus === "saving"} autoFocus />
+                      <div className="flex gap-2">
+                        <button
+                          type="submit"
+                          disabled={emailStatus === "saving" || emailCode.length !== 6}
+                          className="flex h-[42px] items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {emailStatus === "saving" && (
+                            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                          )}
+                          {emailStatus === "saving" ? t.auth.verifyingCode : t.auth.verifyCta}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEmailStep("idle");
+                            setEmailCode("");
+                            setEmailError(null);
+                          }}
+                          className="h-[42px] rounded-xl px-3 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+                        >
+                          {ac.cancelCta}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
+                  {emailStatus === "error" && <div className="mt-2 text-xs text-red-600">{emailError || "Erreur inconnue"}</div>}
                 </div>
-              </>
+              </div>
             )}
 
             {tab === "security" && (
@@ -346,21 +489,77 @@ export default function AccountPage({ email, name, plan, planType, linkedProvide
             )}
 
             {tab === "subscription" && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{ac.planLabel}</p>
-                <div className="mt-1.5 flex items-center gap-2">
-                  {plan === "pro" && <Crown className="h-5 w-5 text-amber-500" strokeWidth={1.75} />}
-                  <span className="text-xl font-bold text-slate-900">{plan === "pro" ? ac.planPro : ac.planFree}</span>
-                  {plan === "pro" && planType && (
-                    <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700">
-                      {PLAN_TYPE_LABEL[planType]}
-                    </span>
+              <>
+                {/* Plan */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{ac.planLabel}</p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    {isPro && <Crown className="h-5 w-5 text-amber-500" strokeWidth={1.75} />}
+                    <span className="text-xl font-bold text-slate-900">{isPro ? ac.planPro : ac.planFree}</span>
+                    {isPro && planType && (
+                      <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700">
+                        {PLAN_TYPE_LABEL[planType]}
+                      </span>
+                    )}
+                  </div>
+
+                  {isPro ? (
+                    <p className="mt-3 text-sm text-slate-500">{ac.manageBillingHint}</p>
+                  ) : (
+                    <Link
+                      href="/checkout"
+                      className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700"
+                    >
+                      <Crown className="h-4 w-4" strokeWidth={1.75} />
+                      {ac.upgradeCta}
+                    </Link>
                   )}
                 </div>
 
-                {plan === "pro" ? (
-                  <>
-                    <p className="mt-4 text-sm text-slate-500">{ac.manageBillingHint}</p>
+                {/* Usage — real counts, so a Pro subscriber can actually see
+                    what their subscription is doing for them. */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-slate-400" strokeWidth={1.75} />
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{ac.usageTitle}</p>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <StatTile icon={MessageSquare} label={ac.usageConversations} value={String(conversationCount)} />
+                    <StatTile icon={Sparkles} label={ac.usageAiReplies} value={String(aiReplyCount)} />
+                    <StatTile
+                      icon={CalendarDays}
+                      label={isPro ? ac.memberSinceLabel : ac.usageAiToday}
+                      value={isPro ? memberSinceLabel : `${aiUsedToday} / ${aiDailyLimit}`}
+                    />
+                  </div>
+
+                  {isPro && (
+                    <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-brand-700">
+                      <Sparkles className="h-3.5 w-3.5" /> {ac.unlimitedLabel}
+                    </p>
+                  )}
+                </div>
+
+                {/* Billing — Pro only. Invoices and payment methods live on
+                    Tebex (merchant of record); we only hold the transaction
+                    reference, so this links out rather than inventing a
+                    local invoice history we have no data for. */}
+                {isPro && (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <Receipt className="h-4 w-4 text-slate-400" strokeWidth={1.75} />
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{ac.billingTitle}</p>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-500">{ac.billingHint}</p>
+
+                    {transactionId && (
+                      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
+                        <p className="text-xs font-medium text-slate-400">{ac.transactionRefLabel}</p>
+                        <p className="mt-1 break-all font-mono text-sm text-slate-700">{transactionId}</p>
+                      </div>
+                    )}
+
                     <a
                       href={TEBEX_STORE_URL}
                       target="_blank"
@@ -370,17 +569,9 @@ export default function AccountPage({ email, name, plan, planType, linkedProvide
                       <CreditCard className="h-4 w-4" strokeWidth={1.75} />
                       {ac.manageBilling}
                     </a>
-                  </>
-                ) : (
-                  <Link
-                    href="/checkout"
-                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700"
-                  >
-                    <Crown className="h-4 w-4" strokeWidth={1.75} />
-                    {ac.upgradeCta}
-                  </Link>
+                  </div>
                 )}
-              </div>
+              </>
             )}
           </div>
         </div>
