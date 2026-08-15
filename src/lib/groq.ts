@@ -21,11 +21,15 @@ export const groq = new OpenAI({
   baseURL: "https://api.groq.com/openai/v1",
 });
 
+// llama-3.3-70b-versatile and llama-3.1-8b-instant were both deprecated by
+// Groq on 2026-06-17, shut down 2026-08-16 — migrated to Groq's own
+// recommended replacements (console.groq.com/docs/deprecations) ahead of
+// that cutoff.
 export const GROQ_MODELS = {
   /** Best quality/latency tradeoff for step-by-step Excel guidance. */
-  primary: "llama-3.3-70b-versatile",
+  primary: "openai/gpt-oss-120b",
   /** Fallback used when the primary model is rate-limited or overloaded. */
-  fast: "llama-3.1-8b-instant",
+  fast: "openai/gpt-oss-20b",
 } as const;
 
 export const EXCEL_ASSISTANT_SYSTEM_PROMPT = `Tu es Asecxel, un assistant expert Microsoft Excel et Google Sheets.
@@ -55,7 +59,7 @@ Règles de réponse (pour les demandes dans le périmètre) :
 /**
  * Calls Groq's chat completions endpoint with streaming enabled, retrying
  * once against the faster/smaller model if the primary model request fails
- * (e.g. transient rate limit on the 70B model).
+ * (e.g. transient rate limit on the 120B model).
  */
 export async function streamExcelAssistantReply(
   messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
