@@ -1,15 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import styles from "@/app/landing.module.css";
-import AuthModal from "@/components/AuthModal";
 import UserMenu from "@/components/UserMenu";
 import { useLocale } from "@/components/LocaleProvider";
 import { useSupabaseUser } from "@/lib/useSupabaseUser";
 
 export default function LandingHeader() {
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const { t } = useLocale();
   const { user, loading } = useSupabaseUser();
 
@@ -39,9 +36,9 @@ export default function LandingHeader() {
                 <Link href="/login" className={styles.linkButton}>
                   {t.nav.seConnecter}
                 </Link>
-                <button type="button" onClick={() => setAuthModalOpen(true)} className={styles.navBtnPrimary}>
+                <Link href="/login?mode=signup" className={styles.navBtnPrimary}>
                   {t.nav.sInscrire}
-                </button>
+                </Link>
               </>
             )}
           </div>
@@ -51,8 +48,6 @@ export default function LandingHeader() {
           (and therefore no longer taking up space itself), so page content
           never starts underneath it. */}
       <div className={styles.headerSpacer} aria-hidden="true" />
-
-      <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </>
   );
 }

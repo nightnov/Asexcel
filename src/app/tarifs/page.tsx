@@ -1,15 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import styles from "@/app/landing.module.css";
 import { poppins, inter } from "@/lib/fonts";
 import LandingFooter from "@/components/LandingFooter";
-import AuthModal from "@/components/AuthModal";
 import { useLocale } from "@/components/LocaleProvider";
 
 export default function TarifsPage() {
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const { t } = useLocale();
   const p = t.pages.tarifs;
 
@@ -89,13 +86,12 @@ export default function TarifsPage() {
                   {p.memberFeature4}
                 </li>
               </ul>
-              <button
-                type="button"
-                onClick={() => setShowAuthModal(true)}
+              <Link
+                href="/login?mode=signup"
                 className="mt-6 flex h-11 w-full items-center justify-center rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44]"
               >
                 {p.memberCta}
-              </button>
+              </Link>
             </div>
 
             {/* Pro */}
@@ -131,8 +127,6 @@ export default function TarifsPage() {
       </main>
 
       <LandingFooter dark />
-
-      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 }

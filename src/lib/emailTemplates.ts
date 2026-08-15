@@ -47,11 +47,7 @@ function shell(bodyHtml: string, cta?: { label: string; href: string }): string 
                 <table role="presentation" cellpadding="0" cellspacing="0">
                   <tr>
                     <td style="padding-right:10px;">
-                      <table role="presentation" cellpadding="0" cellspacing="0" style="width:28px;height:28px;background:#FFFFFF;border-radius:8px;">
-                        <tr>
-                          <td align="center" valign="middle" style="width:28px;height:28px;font-size:15px;font-weight:800;color:${GREEN};">A</td>
-                        </tr>
-                      </table>
+                      <img src="${SITE_URL}/logo-transparent.png" alt="" width="28" height="28" style="display:block;width:28px;height:28px;object-fit:contain;" />
                     </td>
                     <td style="font-size:18px;font-weight:700;color:#FFFFFF;letter-spacing:-0.01em;">Asexcel</td>
                   </tr>
@@ -65,12 +61,7 @@ function shell(bodyHtml: string, cta?: { label: string; href: string }): string 
               </td>
             </tr>
             <tr>
-              <td style="padding:0 28px;">
-                <div style="height:1px;background:#EEF1EF;margin-top:28px;"></div>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:20px 28px 24px;background:${FOOTER_BG};color:${INK_SOFT};font-size:12px;line-height:1.6;">
+              <td style="padding:28px 28px 24px;background:${FOOTER_BG};color:${INK_SOFT};font-size:12px;line-height:1.6;">
                 <strong style="color:${INK};">Asexcel</strong> — la boîte à outils pour tous les utilisateurs d'Excel.<br />
                 Une question ? Écrivez-nous depuis <a href="${SITE_URL}/outils/support" style="color:${GREEN};font-weight:600;">notre page support</a>.
               </td>

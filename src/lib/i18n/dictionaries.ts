@@ -180,6 +180,8 @@ export const dictionaries = {
       passwordTooShort: "Le mot de passe doit contenir au moins 8 caractères.",
       successSubtitle: "Vous êtes bien connecté(e).",
       continueCta: "Continuer",
+      switchToSignup: "Pas encore de compte ? Créer un compte",
+      switchToLogin: "Déjà un compte ? Se connecter",
       changeEmail: "← Modifier l'adresse e-mail",
     },
     quota: {
@@ -905,6 +907,8 @@ export const dictionaries = {
       passwordTooShort: "Password must be at least 8 characters.",
       successSubtitle: "You're signed in.",
       continueCta: "Continue",
+      switchToSignup: "Don't have an account? Create one",
+      switchToLogin: "Already have an account? Log in",
       changeEmail: "← Change e-mail address",
     },
     quota: {
@@ -1630,6 +1634,8 @@ export const dictionaries = {
       passwordTooShort: "La contraseña debe tener al menos 8 caracteres.",
       successSubtitle: "Has iniciado sesión correctamente.",
       continueCta: "Continuar",
+      switchToSignup: "¿No tienes cuenta? Crea una",
+      switchToLogin: "¿Ya tienes cuenta? Inicia sesión",
       changeEmail: "← Cambiar la dirección de correo",
     },
     quota: {
@@ -2355,6 +2361,8 @@ export const dictionaries = {
       passwordTooShort: "Das Passwort muss mindestens 8 Zeichen lang sein.",
       successSubtitle: "Sie sind angemeldet.",
       continueCta: "Weiter",
+      switchToSignup: "Noch kein Konto? Konto erstellen",
+      switchToLogin: "Bereits ein Konto? Anmelden",
       changeEmail: "← E-Mail-Adresse ändern",
     },
     quota: {
@@ -3080,6 +3088,8 @@ export const dictionaries = {
       passwordTooShort: "A senha deve ter pelo menos 8 caracteres.",
       successSubtitle: "Você entrou com sucesso.",
       continueCta: "Continuar",
+      switchToSignup: "Ainda não tem conta? Criar conta",
+      switchToLogin: "Já tem conta? Entrar",
       changeEmail: "← Alterar endereço de e-mail",
     },
     quota: {
@@ -3805,6 +3815,8 @@ export const dictionaries = {
       passwordTooShort: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
       successSubtitle: "تم تسجيل دخولك بنجاح.",
       continueCta: "متابعة",
+      switchToSignup: "ليس لديك حساب؟ أنشئ حسابًا",
+      switchToLogin: "لديك حساب بالفعل؟ سجّل الدخول",
       changeEmail: "← تغيير البريد الإلكتروني",
     },
     quota: {
@@ -4530,6 +4542,8 @@ export const dictionaries = {
       passwordTooShort: "La password deve contenere almeno 8 caratteri.",
       successSubtitle: "Accesso effettuato.",
       continueCta: "Continua",
+      switchToSignup: "Non hai un account? Creane uno",
+      switchToLogin: "Hai già un account? Accedi",
       changeEmail: "← Cambia indirizzo e-mail",
     },
     quota: {
@@ -5255,6 +5269,8 @@ export const dictionaries = {
       passwordTooShort: "Het wachtwoord moet minimaal 8 tekens bevatten.",
       successSubtitle: "Je bent ingelogd.",
       continueCta: "Doorgaan",
+      switchToSignup: "Nog geen account? Account aanmaken",
+      switchToLogin: "Al een account? Inloggen",
       changeEmail: "← E-mailadres wijzigen",
     },
     quota: {
@@ -5980,6 +5996,8 @@ export const dictionaries = {
       passwordTooShort: "Hasło musi mieć co najmniej 8 znaków.",
       successSubtitle: "Zalogowano pomyślnie.",
       continueCta: "Kontynuuj",
+      switchToSignup: "Nie masz konta? Utwórz konto",
+      switchToLogin: "Masz już konto? Zaloguj się",
       changeEmail: "← Zmień adres e-mail",
     },
     quota: {
@@ -6705,6 +6723,8 @@ export const dictionaries = {
       passwordTooShort: "Şifre en az 8 karakter olmalıdır.",
       successSubtitle: "Girişiniz başarılı oldu.",
       continueCta: "Devam et",
+      switchToSignup: "Hesabın yok mu? Hesap oluştur",
+      switchToLogin: "Zaten hesabın var mı? Giriş yap",
       changeEmail: "← E-posta adresini değiştir",
     },
     quota: {
@@ -7430,6 +7450,8 @@ export const dictionaries = {
       passwordTooShort: "Пароль должен содержать не менее 8 символов.",
       successSubtitle: "Вы успешно вошли.",
       continueCta: "Продолжить",
+      switchToSignup: "Нет аккаунта? Создать аккаунт",
+      switchToLogin: "Уже есть аккаунт? Войти",
       changeEmail: "← Изменить адрес e-mail",
     },
     quota: {
@@ -8155,6 +8177,8 @@ export const dictionaries = {
       passwordTooShort: "パスワードは8文字以上で入力してください。",
       successSubtitle: "ログインに成功しました。",
       continueCta: "続ける",
+      switchToSignup: "アカウントがない場合は作成",
+      switchToLogin: "アカウントをお持ちの場合はログイン",
       changeEmail: "← メールアドレスを変更",
     },
     quota: {
@@ -8880,6 +8904,8 @@ export const dictionaries = {
       passwordTooShort: "密码至少需要8个字符。",
       successSubtitle: "登录成功。",
       continueCta: "继续",
+      switchToSignup: "还没有账户？创建账户",
+      switchToLogin: "已有账户？登录",
       changeEmail: "← 更改电子邮件地址",
     },
     quota: {
@@ -9605,6 +9631,8 @@ export const dictionaries = {
       passwordTooShort: "비밀번호는 최소 8자 이상이어야 합니다.",
       successSubtitle: "로그인되었습니다.",
       continueCta: "계속",
+      switchToSignup: "계정이 없으신가요? 계정 만들기",
+      switchToLogin: "이미 계정이 있으신가요? 로그인",
       changeEmail: "← 이메일 주소 변경",
     },
     quota: {

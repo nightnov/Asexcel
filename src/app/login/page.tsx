@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { useLocale } from "@/components/LocaleProvider";
+import OtpCodeInput from "@/components/OtpCodeInput";
 
 type Mode = "options" | "credentials" | "otpEmail" | "otpCode" | "success";
 type AuthTab = "login" | "signup";
@@ -190,7 +191,7 @@ export default function LoginPage() {
   const { t } = useLocale();
 
   const [mode, setMode] = useState<Mode>("options");
-  const [authTab, setAuthTab] = useState<AuthTab>("login");
+  const [authTab, setAuthTab] = useState<AuthTab>(searchParams.get("mode") === "signup" ? "signup" : "login");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -459,34 +460,7 @@ export default function LoginPage() {
 
               {mode === "credentials" && (
                 <>
-                  <div className="mt-8 grid grid-cols-2 gap-1 rounded-xl bg-white/5 p-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAuthTab("login");
-                        setCredError(null);
-                      }}
-                      className={`rounded-lg py-2 text-sm font-medium transition ${
-                        authTab === "login" ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80"
-                      }`}
-                    >
-                      {t.auth.tabLogin}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAuthTab("signup");
-                        setCredError(null);
-                      }}
-                      className={`rounded-lg py-2 text-sm font-medium transition ${
-                        authTab === "signup" ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80"
-                      }`}
-                    >
-                      {t.auth.tabSignup}
-                    </button>
-                  </div>
-
-                  <form onSubmit={handleCredentialsSubmit} className="mt-4 space-y-3">
+                  <form onSubmit={handleCredentialsSubmit} className="mt-8 space-y-3">
                     <div>
                       <label htmlFor="login-email" className="mb-1.5 block text-xs font-medium text-white/60">
                         {t.auth.emailLabel}
@@ -536,10 +510,21 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      setMode("otpEmail");
+                      setAuthTab(authTab === "login" ? "signup" : "login");
                       setCredError(null);
                     }}
                     className="mt-4 w-full text-center text-xs font-medium text-white/50 hover:text-white"
+                  >
+                    {authTab === "login" ? t.auth.switchToSignup : t.auth.switchToLogin}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("otpEmail");
+                      setCredError(null);
+                    }}
+                    className="mt-2 w-full text-center text-xs font-medium text-white/30 hover:text-white/70"
                   >
                     {t.auth.useOtpLink}
                   </button>
@@ -613,22 +598,8 @@ export default function LoginPage() {
 
                   <form onSubmit={handleCodeSubmit} className="mt-4 space-y-3">
                     <div>
-                      <label htmlFor="login-code" className="mb-1.5 block text-xs font-medium text-white/60">
-                        {t.auth.codeLabel}
-                      </label>
-                      <input
-                        id="login-code"
-                        type="text"
-                        inputMode="numeric"
-                        autoComplete="one-time-code"
-                        required
-                        autoFocus
-                        maxLength={6}
-                        placeholder={t.auth.codePlaceholder}
-                        value={code}
-                        onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-center text-lg tracking-[0.4em] text-white outline-none transition placeholder:text-white/25 focus:border-[#1E8E5A] focus:ring-1 focus:ring-[#1E8E5A]"
-                      />
+                      <label className="mb-1.5 block text-xs font-medium text-white/60">{t.auth.codeLabel}</label>
+                      <OtpCodeInput value={code} onChange={setCode} disabled={codeStatus === "sending"} dark autoFocus />
                     </div>
 
                     {codeError !== null && <div className="text-xs text-red-400">{codeError || "Erreur inconnue"}</div>}

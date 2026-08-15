@@ -9,7 +9,6 @@ import TurnstileWidget from "./TurnstileWidget";
 import LandingHeader from "./LandingHeader";
 import QuotaCounter from "./QuotaCounter";
 import QuotaModal from "./QuotaModal";
-import AuthModal from "./AuthModal";
 import AdBanner from "./AdBanner";
 import { poppins, inter } from "@/lib/fonts";
 import landingStyles from "@/app/landing.module.css";
@@ -33,7 +32,6 @@ export default function ChatWindow() {
   const [error, setError] = useState<string | null>(null);
   const [fileAnalysis, setFileAnalysis] = useState<FileAnalysis | null>(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const quota = useDailyQuota();
   // Turnstile tokens are single-use server-side; the widget re-issues a new
   // one automatically after each verification, which is why this is state
@@ -249,10 +247,9 @@ export default function ChatWindow() {
         guestLimit={GUEST_DAILY_LIMIT}
         memberLimit={MEMBER_DAILY_LIMIT}
         labels={t.quota}
-        onCreateAccount={() => setShowAuthModal(true)}
+        onCreateAccount={() => router.push("/login?mode=signup")}
         onUpgrade={() => router.push("/checkout")}
       />
-      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 }

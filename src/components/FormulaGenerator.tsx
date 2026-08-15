@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import TurnstileWidget from "./TurnstileWidget";
 import QuotaCounter from "./QuotaCounter";
 import QuotaModal from "./QuotaModal";
-import AuthModal from "./AuthModal";
 import AdBanner from "./AdBanner";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { detectLanguage } from "@/lib/excelFormulaTranslator";
@@ -109,7 +108,6 @@ export default function FormulaGenerator() {
   const [cached, setCached] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const quota = useDailyQuota();
 
   const { formula: resultFormula, explanation: resultExplanation } = useMemo(
@@ -350,10 +348,9 @@ export default function FormulaGenerator() {
         guestLimit={GUEST_DAILY_LIMIT}
         memberLimit={MEMBER_DAILY_LIMIT}
         labels={t.quota}
-        onCreateAccount={() => setShowAuthModal(true)}
+        onCreateAccount={() => router.push("/login?mode=signup")}
         onUpgrade={() => router.push("/checkout")}
       />
-      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 }
