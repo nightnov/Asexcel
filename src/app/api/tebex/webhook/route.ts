@@ -8,8 +8,8 @@ import { buildProConfirmationEmail } from "@/lib/emailTemplates";
 export const runtime = "nodejs";
 
 const PACKAGE_PLAN: Record<string, ProPlanType> = {
-  [process.env.NEXT_PUBLIC_TEBEX_PACKAGE_MONTHLY ?? "__unset_monthly__"]: "monthly",
-  [process.env.NEXT_PUBLIC_TEBEX_PACKAGE_ANNUAL ?? "__unset_annual__"]: "annual",
+  [process.env.NEXT_PUBLIC_TEBEX_PACKAGE_MONTHLY || "7614332"]: "monthly",
+  [process.env.NEXT_PUBLIC_TEBEX_PACKAGE_ANNUAL || "7614526"]: "annual",
 };
 
 function verifySignature(rawBody: string, signatureHeader: string, secret: string): boolean {

@@ -17,13 +17,21 @@ export async function verifyTurnstileToken(
   token: string | null | undefined,
   remoteIp?: string
 ): Promise<TurnstileVerifyResult> {
-  if (!token) {
-    return { success: false, errorCodes: ["missing-input-response"] };
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+
+  // Not configured — the feature is off, not failing. Checked before the
+  // token check on purpose: throwing (or rejecting) here used to 500/403
+  // every AI request on a deployment that simply never had the keys set,
+  // which is exactly how the whole assistant ended up unusable in
+  // production. Logged loudly so an accidentally-unset key in an
+  // environment that DOES want protection is still visible.
+  if (!secret) {
+    console.warn("TURNSTILE_SECRET_KEY is not set — anti-abuse verification is disabled for this request.");
+    return { success: true };
   }
 
-  const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) {
-    throw new Error("TURNSTILE_SECRET_KEY is not set on the server.");
+  if (!token) {
+    return { success: false, errorCodes: ["missing-input-response"] };
   }
 
   const body = new URLSearchParams({ secret, response: token });

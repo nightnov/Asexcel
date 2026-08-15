@@ -13,6 +13,7 @@ import AdBanner from "./AdBanner";
 import { poppins, inter } from "@/lib/fonts";
 import landingStyles from "@/app/landing.module.css";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
+import { TURNSTILE_ENABLED } from "@/lib/turnstileConfig";
 import { useDailyQuota, GUEST_DAILY_LIMIT } from "@/lib/useDailyQuota";
 import { MEMBER_DAILY_LIMIT } from "@/lib/quotaConfig";
 import { isAiRefusal } from "@/lib/aiRefusals";
@@ -54,7 +55,10 @@ export default function ChatWindow() {
       return;
     }
 
-    if (!AUTH_DISABLED && !turnstileToken) {
+    // Only wait on a Turnstile token when Turnstile is actually configured —
+    // otherwise the widget never renders, no token ever arrives, and this
+    // guard would block every message permanently.
+    if (!AUTH_DISABLED && TURNSTILE_ENABLED && !turnstileToken) {
       setError(tc.antiAbuseChecking);
       return;
     }
@@ -232,7 +236,7 @@ export default function ChatWindow() {
           <FileUpload onAnalyzed={setFileAnalysis} disabled={isStreaming} />
         </form>
 
-        {!AUTH_DISABLED && <TurnstileWidget onVerify={setTurnstileToken} />}
+        {!AUTH_DISABLED && TURNSTILE_ENABLED && <TurnstileWidget onVerify={setTurnstileToken} />}
       </div>
 
       <aside className="hidden w-[300px] shrink-0 pt-1 lg:block">

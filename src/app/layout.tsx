@@ -6,7 +6,7 @@ import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, isRtl } from "@/lib/i18n/confi
 
 // Falls back to the real production domain (not localhost) — NEXT_PUBLIC_SITE_URL
 // only needs to be set to override this for a preview/staging deploy.
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asexcel.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://asexcel.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

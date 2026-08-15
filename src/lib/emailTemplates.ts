@@ -7,7 +7,7 @@ const FOOTER_BG = "#FAFBFA";
 // Falls back to the real production domain (not localhost) — these links go
 // out in real e-mails, so this must never resolve to something unreachable
 // for the recipient even if NEXT_PUBLIC_SITE_URL isn't set on the host.
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asexcel.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://asexcel.com";
 
 interface EmailContent {
   subject: string;

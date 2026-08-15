@@ -8,6 +8,7 @@ import QuotaCounter from "./QuotaCounter";
 import QuotaModal from "./QuotaModal";
 import AdBanner from "./AdBanner";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
+import { TURNSTILE_ENABLED } from "@/lib/turnstileConfig";
 import { detectLanguage } from "@/lib/excelFormulaTranslator";
 import { useDailyQuota, GUEST_DAILY_LIMIT } from "@/lib/useDailyQuota";
 import { MEMBER_DAILY_LIMIT } from "@/lib/quotaConfig";
@@ -132,7 +133,9 @@ export default function FormulaGenerator() {
       return;
     }
 
-    if (!AUTH_DISABLED && !turnstileToken) {
+    // See ChatWindow's equivalent guard: only wait on a token when Turnstile
+    // is actually configured, otherwise this blocks every request forever.
+    if (!AUTH_DISABLED && TURNSTILE_ENABLED && !turnstileToken) {
       setError(tt.antiAbuseChecking);
       return;
     }
@@ -340,7 +343,7 @@ export default function FormulaGenerator() {
         )}
       </div>
 
-      {!AUTH_DISABLED && <TurnstileWidget onVerify={setTurnstileToken} />}
+      {!AUTH_DISABLED && TURNSTILE_ENABLED && <TurnstileWidget onVerify={setTurnstileToken} />}
       <QuotaModal
         open={showQuotaModal}
         onClose={() => setShowQuotaModal(false)}
