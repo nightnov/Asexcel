@@ -54,6 +54,17 @@ create policy "profiles: user can update own row"
   on public.profiles for update
   using (auth.uid() = id);
 
+-- Lets a signed-in user create their own (and only their own) row. Normally
+-- the trigger below already did it at sign-up; this is the safety net for
+-- accounts that predate the trigger, which otherwise had no profiles row at
+-- all and failed every quota check. src/lib/quota.ts also self-heals via the
+-- service-role client, so this policy is belt-and-braces rather than the
+-- only path.
+drop policy if exists "profiles: user can insert own row" on public.profiles;
+create policy "profiles: user can insert own row"
+  on public.profiles for insert
+  with check (auth.uid() = id);
+
 -- profile row is created automatically when a new auth user signs up
 -- (including anonymous/guest users, whose new.email is null)
 create or replace function public.handle_new_user()

@@ -5,10 +5,16 @@ import styles from "@/app/landing.module.css";
 import { poppins, inter } from "@/lib/fonts";
 import LandingFooter from "@/components/LandingFooter";
 import { useLocale } from "@/components/LocaleProvider";
+import { useSupabaseUser } from "@/lib/useSupabaseUser";
 
 export default function TarifsPage() {
   const { t } = useLocale();
   const p = t.pages.tarifs;
+  // Signed-in visitors must not be told to "create a free account" — they
+  // already have one. Until the session resolves, treat as signed-out so the
+  // page doesn't flicker a wrong badge.
+  const { user, loading } = useSupabaseUser();
+  const isMember = !loading && user !== null;
 
   return (
     <div className={`${styles.page} ${poppins.variable} ${inter.variable}`}>
@@ -35,7 +41,7 @@ export default function TarifsPage() {
             {/* Invité */}
             <div className="flex flex-col rounded-3xl border border-white/10 bg-white/[0.04] p-7 shadow-2xl backdrop-blur-xl">
               <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-white/70">
-                {p.currentPlanBadge}
+                {isMember ? " " : p.currentPlanBadge}
               </span>
               <div className="mt-4 font-serif text-lg font-semibold text-white">{p.guestName}</div>
               <div className="mt-1 text-2xl font-bold text-white">{p.guestPriceLabel}</div>
@@ -53,18 +59,21 @@ export default function TarifsPage() {
                   {p.guestFeature3}
                 </li>
               </ul>
-              <button
-                type="button"
+              {/* Was a <button> with no onClick — it looked clickable and did
+                  nothing at all. "Use without an account" means: go straight
+                  to the assistant. */}
+              <Link
+                href="/chat"
                 className="mt-6 flex h-11 w-full items-center justify-center rounded-xl border border-white/15 bg-white/5 text-sm font-medium text-white transition hover:bg-white/10"
               >
                 {p.guestCta}
-              </button>
+              </Link>
             </div>
 
             {/* Membre — featured */}
             <div className="flex flex-col rounded-3xl border border-[#34D399]/40 bg-white/[0.06] p-7 shadow-[0_0_40px_-10px_rgba(52,211,153,0.35)] backdrop-blur-xl">
               <span className="w-fit rounded-full bg-[#1E8E5A] px-3 py-1 text-[11px] font-semibold text-white">
-                {p.popularBadge}
+                {isMember ? p.currentPlanBadge : p.popularBadge}
               </span>
               <div className="mt-4 font-serif text-lg font-semibold text-white">{p.memberName}</div>
               <div className="mt-1 text-2xl font-bold text-white">{p.memberPriceLabel}</div>
@@ -86,11 +95,13 @@ export default function TarifsPage() {
                   {p.memberFeature4}
                 </li>
               </ul>
+              {/* Already signed in: don't offer to create an account again —
+                  send them to their account instead. */}
               <Link
-                href="/inscription"
+                href={isMember ? "/compte" : "/inscription"}
                 className="mt-6 flex h-11 w-full items-center justify-center rounded-xl bg-[#1E8E5A] text-sm font-medium text-white transition hover:bg-[#166B44]"
               >
-                {p.memberCta}
+                {isMember ? t.nav.monCompte : p.memberCta}
               </Link>
             </div>
 

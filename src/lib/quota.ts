@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, UserPlan } from "@/types/database";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { MEMBER_DAILY_LIMIT } from "@/lib/quotaConfig";
 
 export { MEMBER_DAILY_LIMIT };
@@ -35,15 +36,46 @@ interface LoadedProfile {
   plan: UserPlan;
 }
 
+/**
+ * Creates the caller's profiles row if it doesn't exist yet.
+ *
+ * Normally the `on_auth_user_created` trigger in supabase/schema.sql does
+ * this at sign-up. But an account created before that trigger existed — or
+ * on a database where schema.sql was never applied — has no row, and every
+ * quota check then failed with "Impossible de vérifier votre quota", making
+ * the assistant unusable for that user with no way to self-recover.
+ *
+ * Uses the service-role client on purpose: `profiles` has SELECT and UPDATE
+ * policies for "own row" but no INSERT policy, so a session-scoped client
+ * is not allowed to create its own row.
+ */
+async function createMissingProfile(userId: string): Promise<void> {
+  const admin = createAdminClient();
+  const { error } = await admin.from("profiles").insert({ id: userId }).select("id").maybeSingle();
+  // Ignore unique-violation: a concurrent request (or the trigger) may have
+  // just created the same row, which is a success from our point of view.
+  if (error && error.code !== "23505") {
+    throw new Error(`Impossible de créer le profil utilisateur : ${error.message}`);
+  }
+}
+
 async function loadProfile(supabase: SupabaseClient<Database>, userId: string): Promise<LoadedProfile> {
+  // maybeSingle, not single: "no row" is a recoverable state handled below,
+  // not an error worth throwing on.
   const { data: profile, error } = await supabase
     .from("profiles")
     .select("daily_quota_used, quota_reset_at, plan")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
-  if (error || !profile) {
-    throw new Error("Impossible de charger le profil utilisateur pour vérifier le quota.");
+  if (error) {
+    throw new Error(`Impossible de charger le profil utilisateur pour vérifier le quota : ${error.message}`);
+  }
+
+  if (!profile) {
+    await createMissingProfile(userId);
+    // Fresh row — schema defaults are 0 used / today / 'free'.
+    return { used: 0, plan: "free" };
   }
 
   const isNewDay = profile.quota_reset_at !== todayUtc();
