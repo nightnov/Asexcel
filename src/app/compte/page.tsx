@@ -13,7 +13,7 @@ export default async function ComptePage() {
     // No real Supabase session to read in the dev bypass — show the mock
     // user as a free member so the page (and the "upgrade" path) is still
     // exercisable locally. See src/lib/dev-auth.ts.
-    return <AccountPage userId={MOCK_USER_ID} email={null} name={null} plan="free" planType={null} />;
+    return <AccountPage userId={MOCK_USER_ID} email={null} name={null} plan="free" planType={null} linkedProviders={["email"]} />;
   }
 
   const supabase = createClient();
@@ -32,6 +32,7 @@ export default async function ComptePage() {
     .single();
 
   const name = (user.user_metadata?.full_name as string | undefined) ?? (user.user_metadata?.name as string | undefined) ?? null;
+  const linkedProviders = (user.identities ?? []).map((identity) => identity.provider);
 
   return (
     <AccountPage
@@ -40,6 +41,7 @@ export default async function ComptePage() {
       name={name}
       plan={(profile?.plan ?? "free") as UserPlan}
       planType={(profile?.plan_type ?? null) as ProPlanType | null}
+      linkedProviders={linkedProviders}
     />
   );
 }
