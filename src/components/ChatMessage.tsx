@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 import { parseMarkdownTables } from "@/lib/parseMarkdownTable";
+import { splitIntoSteps } from "@/lib/splitIntoSteps";
 import ExportXlsxButton from "./ExportXlsxButton";
 
 export interface ChatMessageData {
@@ -52,33 +53,45 @@ const markdownComponents: Components = {
 export default function ChatMessage({ role, content, cached }: ChatMessageData) {
   const isUser = role === "user";
   const tables = isUser ? [] : parseMarkdownTables(content);
+  const blocks = !isUser && content ? splitIntoSteps(content) : [];
+
+  if (isUser) {
+    return (
+      <div className="flex flex-col items-end">
+        <div className="max-w-[80%] whitespace-pre-wrap rounded-2xl bg-brand-600 px-4 py-2.5 text-sm leading-relaxed text-white">
+          {content}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}>
-      <div
-        className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-          isUser
-            ? "whitespace-pre-wrap bg-brand-600 text-white"
-            : "border border-slate-200 bg-white text-slate-800"
-        }`}
-      >
-        {content ? (
-          isUser ? (
-            content
-          ) : (
-            <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown>
-          )
-        ) : (
+    <div className="flex flex-col items-start gap-1.5">
+      {content ? (
+        blocks.map((block, i) => (
+          <div key={i} className="flex max-w-[85%] items-start gap-2.5">
+            {block.step !== null && (
+              <span className="mt-2 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-100 text-[11px] font-semibold text-brand-700">
+                {block.step}
+              </span>
+            )}
+            <div className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm leading-relaxed text-slate-800">
+              <ReactMarkdown components={markdownComponents}>{block.markdown}</ReactMarkdown>
+            </div>
+          </div>
+        ))
+      ) : (
+        <div className="max-w-[85%] rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm leading-relaxed text-slate-800">
           <span className="inline-flex gap-1 text-slate-400">
             <span className="animate-pulse">●</span>
             <span className="animate-pulse [animation-delay:150ms]">●</span>
             <span className="animate-pulse [animation-delay:300ms]">●</span>
           </span>
-        )}
-      </div>
+        </div>
+      )}
 
       {cached && (
-        <span className="mt-1 text-[11px] text-slate-400">
+        <span className="text-[11px] text-slate-400">
           ⚡ Réponse servie depuis le cache — aucun appel Groq
         </span>
       )}
