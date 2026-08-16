@@ -1,17 +1,12 @@
-"use client";
+import { buildMetadata } from "@/lib/seo";
+import BlogPageClient from "@/components/pages/BlogPageClient";
 
-import LegalPageShell from "@/components/LegalPageShell";
-import { useLocale } from "@/components/LocaleProvider";
+export const metadata = buildMetadata({
+  title: "Blog — Asexcel",
+  description: "Conseils, astuces et actualités autour d'Excel, des formules et de l'automatisation de fichiers avec Asexcel.",
+  path: "/blog",
+});
 
 export default function BlogPage() {
-  const { t } = useLocale();
-  const p = t.pages.blog;
-
-  return (
-    <LegalPageShell title={p.title} showUpdatedAt={false}>
-      <div className="rounded-2xl bg-slate-50 p-8 text-center">
-        <p className="text-sm text-slate-500">{p.empty}</p>
-      </div>
-    </LegalPageShell>
-  );
+  return <BlogPageClient />;
 }

@@ -1,18 +1,12 @@
-"use client";
+import { buildMetadata } from "@/lib/seo";
+import AProposPageClient from "@/components/pages/AProposPageClient";
 
-import LegalPageShell from "@/components/LegalPageShell";
-import { useLocale } from "@/components/LocaleProvider";
+export const metadata = buildMetadata({
+  title: "À propos — Asexcel",
+  description: "Découvrez Asexcel, la boîte à outils gratuite pour nettoyer, convertir, comparer et protéger vos fichiers Excel et CSV.",
+  path: "/a-propos",
+});
 
 export default function AProposPage() {
-  const { t } = useLocale();
-  const p = t.pages.aPropos;
-
-  return (
-    <LegalPageShell title={p.title} showUpdatedAt={false}>
-      <p>{p.p1}</p>
-      <p>{p.p2}</p>
-      <p>{p.p3}</p>
-      <p>{p.p4}</p>
-    </LegalPageShell>
-  );
+  return <AProposPageClient />;
 }

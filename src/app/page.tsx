@@ -8,6 +8,7 @@ import { poppins, inter } from "@/lib/fonts";
 import LandingHeader from "@/components/LandingHeader";
 import LandingFooter from "@/components/LandingFooter";
 import FaqAccordion from "@/components/FaqAccordion";
+import FaqStructuredData from "@/components/FaqStructuredData";
 import SidebarAdColumns from "@/components/SidebarAdColumns";
 import { useLocale } from "@/components/LocaleProvider";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -366,6 +367,7 @@ export default function HomePage(): ReactNode {
             <h2 className={styles.sectionTitle}>{t.home.faqTitle}</h2>
           </div>
           <FaqAccordion items={t.home.faq} />
+          <FaqStructuredData items={t.home.faq} />
         </div>
       </section>
 

@@ -5,6 +5,7 @@ import CheckoutPage from "@/components/CheckoutPage";
 
 export const metadata = {
   title: "Passer au plan Pro — Asexcel",
+  robots: { index: false, follow: true },
 };
 
 export default async function Checkout() {

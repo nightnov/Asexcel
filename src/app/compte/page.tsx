@@ -7,6 +7,7 @@ import type { UserPlan, ProPlanType } from "@/types/database";
 
 export const metadata = {
   title: "Mon compte — Asexcel",
+  robots: { index: false, follow: true },
 };
 
 export default async function ComptePage() {

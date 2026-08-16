@@ -1,24 +1,12 @@
-"use client";
+import { buildMetadata } from "@/lib/seo";
+import PressePageClient from "@/components/pages/PressePageClient";
 
-import LegalPageShell from "@/components/LegalPageShell";
-import { useLocale } from "@/components/LocaleProvider";
+export const metadata = buildMetadata({
+  title: "Presse — Asexcel",
+  description: "Ressources presse et contact médias pour Asexcel, la boîte à outils gratuite pour vos fichiers Excel.",
+  path: "/presse",
+});
 
 export default function PressePage() {
-  const { t } = useLocale();
-  const p = t.pages.presse;
-
-  return (
-    <LegalPageShell title={p.title} showUpdatedAt={false}>
-      <p>
-        {p.introPrefix}{" "}
-        <a href="/outils/support" className="text-brand-600 underline hover:text-brand-700">
-          {p.introLinkLabel}
-        </a>{" "}
-        {p.introSuffix}
-      </p>
-      <div className="rounded-2xl bg-slate-50 p-8 text-center">
-        <p className="text-sm text-slate-500">{p.empty}</p>
-      </div>
-    </LegalPageShell>
-  );
+  return <PressePageClient />;
 }

@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import styles from "@/app/landing.module.css";
 import FaqAccordion from "@/components/FaqAccordion";
 import { useLocale } from "@/components/LocaleProvider";
+import { trackEvent } from "@/lib/analytics";
 
 type Category = "question" | "request" | "problem" | "other";
 type SendState = "idle" | "sending" | "sent" | "error";
@@ -48,6 +49,7 @@ export default function SupportPage() {
         return;
       }
 
+      trackEvent("contact_form_submit", { category });
       setState("sent");
       setMessage("");
       setEmail("");

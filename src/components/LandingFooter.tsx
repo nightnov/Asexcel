@@ -177,6 +177,10 @@ export default function LandingFooter({ dark = false }: { dark?: boolean }) {
               <li><Link href="/outils/fusionneur" className={linkClass}>{t.footer.fusion}</Link></li>
               <li><Link href="/outils/diviseur" className={linkClass}>{t.footer.division}</Link></li>
               <li><Link href="/outils/generateur-formules" className={linkClass}>{t.footer.generateurFormules}</Link></li>
+              <li><Link href="/outils/formules" className={linkClass}>{t.footer.traduction}</Link></li>
+              <li><Link href="/outils/comparateur" className={linkClass}>{t.footer.comparaison}</Link></li>
+              <li><Link href="/outils/securite" className={linkClass}>{t.footer.securiteOutil}</Link></li>
+              <li><Link href="/outils/test-qi" className={linkClass}>{t.footer.testQi}</Link></li>
             </ul>
           </div>
 

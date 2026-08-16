@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import "./globals.css";
 import { LocaleProvider } from "@/components/LocaleProvider";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, isRtl } from "@/lib/i18n/config";
 
 // Falls back to the real production domain (not localhost) — NEXT_PUBLIC_SITE_URL
@@ -37,6 +38,25 @@ export const metadata: Metadata = {
   },
 };
 
+/** Site-wide identity, present on every page. Kept minimal and locale-neutral
+ * (name/URL only, no translated marketing copy) so it never drifts out of
+ * sync with what's actually rendered — Google requires structured data to
+ * match visible page content. */
+const ORGANIZATION_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Asexcel",
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo-transparent.png`,
+};
+
+const WEBSITE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Asexcel",
+  url: SITE_URL,
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieLocale = cookies().get(LOCALE_COOKIE)?.value;
   const locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
@@ -44,6 +64,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang={locale} dir={isRtl(locale) ? "rtl" : "ltr"}>
       <body>
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_JSON_LD) }}
+        />
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_JSON_LD) }}
+        />
+        <GoogleAnalytics />
         <LocaleProvider initialLocale={locale}>{children}</LocaleProvider>
       </body>
     </html>

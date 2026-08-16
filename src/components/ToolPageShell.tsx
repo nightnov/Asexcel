@@ -7,6 +7,7 @@ import LandingFooter from "@/components/LandingFooter";
 import AdBanner from "@/components/AdBanner";
 import ProUpsellNote from "@/components/ProUpsellNote";
 import SidebarAdColumns from "@/components/SidebarAdColumns";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function ToolPageShell({ children }: { children: ReactNode }) {
   return (
@@ -15,6 +16,7 @@ export default function ToolPageShell({ children }: { children: ReactNode }) {
 
       <section className={styles.section} style={{ paddingTop: 32 }}>
         <div className={styles.wrap}>
+          <Breadcrumb />
           <Link
             href="/"
             className={styles.linkButton}
