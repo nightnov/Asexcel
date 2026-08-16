@@ -12,8 +12,15 @@ const PACKAGE_PLAN: Record<string, ProPlanType> = {
   [process.env.NEXT_PUBLIC_TEBEX_PACKAGE_ANNUAL || "7614526"]: "annual",
 };
 
+/**
+ * Tebex's actual scheme (confirmed against docs.tebex.io/developers/webhooks):
+ * SHA256-hash the raw body first, then HMAC-SHA256 that hash (as a hex
+ * string) with the webhook secret. A plain HMAC-SHA256 of the raw body
+ * (skipping the inner SHA256 step) never matches a real Tebex signature.
+ */
 function verifySignature(rawBody: string, signatureHeader: string, secret: string): boolean {
-  const digest = Buffer.from(crypto.createHmac("sha256", secret).update(rawBody).digest("hex"), "utf8");
+  const bodyHash = crypto.createHash("sha256").update(rawBody, "utf-8").digest("hex");
+  const digest = Buffer.from(crypto.createHmac("sha256", secret).update(bodyHash).digest("hex"), "utf8");
   const signature = Buffer.from(signatureHeader, "utf8");
   return digest.length === signature.length && crypto.timingSafeEqual(digest, signature);
 }
@@ -47,27 +54,20 @@ interface TebexWebhookPayload {
 /**
  * Tebex's server-to-server callback — the only place that flips
  * profiles.plan to 'pro'. Uses the service-role client (no user session
- * exists on this request) and verifies a signature so nobody can call this
- * endpoint directly to grant themselves Pro for free.
+ * exists on this request) and verifies a signature (see verifySignature
+ * above, confirmed against docs.tebex.io/developers/webhooks) so nobody can
+ * call this endpoint directly to grant themselves Pro for free.
  *
- * Two things here are assumptions pending confirmation against Tebex's real
- * behavior once the store's webhook is configured:
- *  1. Signature scheme — HMAC-SHA256 of the raw body via an `x-signature`
- *     header, mirroring the Lemon Squeezy integration this replaces. Tebex's
- *     exact header name/algorithm needs verifying in their dashboard docs.
- *  2. The one-off "validation" ping Tebex sends when a webhook URL is first
- *     saved, expecting its id echoed back to confirm endpoint ownership —
- *     implemented as a best guess (`type === "validation.webhook"`).
+ * The one-off "validation" ping Tebex sends when a webhook URL is first
+ * saved/re-validated is handled before the signature check: it carries no
+ * sensitive data (just an id to echo back) and Tebex's docs don't document
+ * it being signed, so requiring a signature here made every endpoint fail
+ * validation before ever reaching real event handling.
  */
 export async function POST(request: NextRequest) {
   const secret = process.env.TEBEX_WEBHOOK_SECRET;
   const signature = request.headers.get("x-signature");
   const rawBody = await request.text();
-
-  if (!secret || !signature || !verifySignature(rawBody, signature, secret)) {
-    console.error("Tebex webhook: missing or invalid signature.");
-    return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
-  }
 
   let payload: TebexWebhookPayload;
   try {
@@ -77,7 +77,12 @@ export async function POST(request: NextRequest) {
   }
 
   if (payload.type === "validation.webhook") {
-    return NextResponse.json({ id: payload.subject?.id ?? payload.id });
+    return NextResponse.json({ id: payload.id });
+  }
+
+  if (!secret || !signature || !verifySignature(rawBody, signature, secret)) {
+    console.error("Tebex webhook: missing or invalid signature.");
+    return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
   }
 
   const admin = createAdminClient();
