@@ -12,6 +12,7 @@ import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { createClient } from "@/lib/supabase/client";
 import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { TEBEX_STORE_URL } from "@/lib/tebex";
+import { isAdminEmail } from "@/lib/adminConfig";
 import { poppins, inter } from "@/lib/fonts";
 import styles from "@/app/landing.module.css";
 import type { UserPlan, ProPlanType } from "@/types/database";
@@ -344,6 +345,22 @@ export default function AccountPage({
           <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
             {ac.checkoutSuccessBanner}
           </div>
+        )}
+
+        {isAdminEmail(currentEmail) && (
+          <Link
+            href="/admin"
+            className="mt-6 flex items-center justify-between rounded-2xl border border-ink bg-ink px-5 py-4 text-white transition hover:opacity-90"
+          >
+            <div className="flex items-center gap-3">
+              <Shield className="h-5 w-5" strokeWidth={1.75} />
+              <div>
+                <p className="text-sm font-semibold">Dashboard Admin</p>
+                <p className="text-xs text-white/60">Utilisateurs, statistiques, support</p>
+              </div>
+            </div>
+            <span className="text-xs font-medium text-white/60">Ouvrir →</span>
+          </Link>
         )}
 
         <div className="mt-8 flex flex-col gap-8 lg:flex-row">
