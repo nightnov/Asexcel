@@ -13,6 +13,8 @@ import {
   type SplitFile,
 } from "@/lib/fileMergeSplit";
 import { useLocale } from "@/components/LocaleProvider";
+import { useAdInterstitial } from "@/lib/useAdInterstitial";
+import AdInterstitialModal from "@/components/AdInterstitialModal";
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} o`;
@@ -50,6 +52,8 @@ export default function FileSplitter() {
     setSplitResults([]);
     setSplitError(null);
   }
+
+  const adInterstitial = useAdInterstitial();
 
   async function handleSplit() {
     if (!splitSource) return;
@@ -157,7 +161,10 @@ export default function FileSplitter() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => downloadAsZip(splitResults, `${splitSource?.name.replace(/\.[^.]+$/, "") ?? "decoupe"}.zip`)}
+                  onClick={() => {
+                    downloadAsZip(splitResults, `${splitSource?.name.replace(/\.[^.]+$/, "") ?? "decoupe"}.zip`);
+                    adInterstitial.trigger();
+                  }}
                   className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-brand-700"
                 >
                   📦 {tt.downloadAll}
@@ -174,7 +181,10 @@ export default function FileSplitter() {
                     </span>
                     <button
                       type="button"
-                      onClick={() => triggerDownload(f.blob, f.name)}
+                      onClick={() => {
+                        triggerDownload(f.blob, f.name);
+                        adInterstitial.trigger();
+                      }}
                       className="ml-2 shrink-0 text-xs font-medium text-brand-600 hover:text-brand-700"
                     >
                       {tt.download}
@@ -186,6 +196,8 @@ export default function FileSplitter() {
           )}
         </div>
       </div>
+
+      <AdInterstitialModal open={adInterstitial.open} onClose={adInterstitial.close} />
     </div>
   );
 }

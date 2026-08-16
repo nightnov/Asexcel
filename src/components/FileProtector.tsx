@@ -13,6 +13,8 @@ import { LockIcon } from "@/components/icons/ToolIcons";
 import { useLocale } from "@/components/LocaleProvider";
 import { usePlan } from "@/lib/usePlan";
 import { fileSizeLimitBytes, buildTooLargeMessage } from "@/lib/fileSizeLimits";
+import { useAdInterstitial } from "@/lib/useAdInterstitial";
+import AdInterstitialModal from "@/components/AdInterstitialModal";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
 type Tab = "protect" | "unlock";
@@ -136,6 +138,8 @@ export default function FileProtector() {
     setProtectFile(file);
   }
 
+  const adInterstitial = useAdInterstitial();
+
   async function handleProtect() {
     if (!protectFile || !protectPassword) return;
     setProtecting(true);
@@ -145,6 +149,7 @@ export default function FileProtector() {
       const zipBlob = await createProtectedZip(protectFile, protectPassword);
       triggerDownload(zipBlob, outputZipName(protectFile.name));
       setProtectDone(true);
+      adInterstitial.trigger();
     } catch (err) {
       setProtectError(isUnsupportedFileError(err) ? err.message : tt.errProtectFailed);
     } finally {
@@ -173,6 +178,7 @@ export default function FileProtector() {
       const { blob, fileName } = await extractProtectedZip(unlockFile, unlockPassword);
       triggerDownload(blob, fileName);
       setUnlockDone(fileName);
+      adInterstitial.trigger();
     } catch (err) {
       if (isInvalidPasswordError(err)) setUnlockError(err.message);
       else setUnlockError(isUnsupportedFileError(err) ? err.message : tt.errUnlockFailed);
@@ -337,6 +343,8 @@ export default function FileProtector() {
           </div>
         )}
       </div>
+
+      <AdInterstitialModal open={adInterstitial.open} onClose={adInterstitial.close} />
     </div>
   );
 }

@@ -9,6 +9,8 @@ import {
 } from "@/lib/dataCleaner";
 import { useLocale } from "@/components/LocaleProvider";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { useAdInterstitial } from "@/lib/useAdInterstitial";
+import AdInterstitialModal from "@/components/AdInterstitialModal";
 
 function SegmentField({
   label,
@@ -108,6 +110,8 @@ export default function DataCleaner() {
     setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
+  const adInterstitial = useAdInterstitial();
+
   async function handleCopy() {
     if (!result.output) return;
     try {
@@ -115,6 +119,7 @@ export default function DataCleaner() {
       setCopied(true);
       setCopyError(false);
       setTimeout(() => setCopied(false), 1500);
+      adInterstitial.trigger();
     } catch {
       setCopyError(true);
       setTimeout(() => setCopyError(false), 2500);
@@ -197,6 +202,8 @@ export default function DataCleaner() {
           <p className="mt-2 text-xs text-amber-600">⚠️ {tt.decimalWarning}</p>
         )}
       </div>
+
+      <AdInterstitialModal open={adInterstitial.open} onClose={adInterstitial.close} />
     </div>
   );
 }

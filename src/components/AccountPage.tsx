@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CreditCard, Crown, Check, User, Shield, Receipt, BarChart3, MessageSquare, Sparkles, CalendarDays } from "lucide-react";
+import { CreditCard, Crown, Check, User, Shield, Receipt, BarChart3, MessageSquare, Sparkles, CalendarDays, Camera } from "lucide-react";
 import LandingHeader from "@/components/LandingHeader";
 import OtpCodeInput from "@/components/OtpCodeInput";
+import UserAvatar from "@/components/UserAvatar";
 import { useLocale } from "@/components/LocaleProvider";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { createClient } from "@/lib/supabase/client";
@@ -19,6 +20,7 @@ interface AccountPageProps {
   userId: string;
   email: string | null;
   name: string | null;
+  avatarUrl: string | null;
   plan: UserPlan;
   planType: ProPlanType | null;
   transactionId: string | null;
@@ -34,11 +36,8 @@ type EmailStep = "idle" | "editing" | "code" | "done";
 type Tab = "profile" | "security" | "subscription";
 
 const MIN_PASSWORD_LENGTH = 8;
-
-function initialsFor(name: string, email: string | null): string {
-  const source = name !== "" ? name : email ?? "?";
-  return source.trim().charAt(0).toUpperCase();
-}
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
+const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 function StatTile({ icon: Icon, label, value }: { icon: typeof MessageSquare; label: string; value: string }) {
   return (
@@ -53,8 +52,10 @@ function StatTile({ icon: Icon, label, value }: { icon: typeof MessageSquare; la
 }
 
 export default function AccountPage({
+  userId,
   email,
   name,
+  avatarUrl,
   plan,
   planType,
   transactionId,
@@ -75,6 +76,11 @@ export default function AccountPage({
   const [nameInput, setNameInput] = useState(name ?? "");
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState(avatarUrl);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [currentEmail, setCurrentEmail] = useState(email ?? "");
   const [emailStep, setEmailStep] = useState<EmailStep>("idle");
@@ -103,7 +109,65 @@ export default function AccountPage({
 
   const memberSinceLabel = memberSince
     ? new Date(memberSince).toLocaleDateString(locale, { year: "numeric", month: "long" })
-    : "—";
+    : "";
+
+  async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setAvatarError(null);
+
+    if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
+      setAvatarError(ac.avatarInvalidType);
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      setAvatarError(ac.avatarTooLarge);
+      return;
+    }
+
+    if (AUTH_DISABLED) {
+      setCurrentAvatarUrl(URL.createObjectURL(file));
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const supabase = createClient();
+      const extension = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+      const path = `${userId}/avatar.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (uploadError) {
+        logSupabaseError("Erreur Supabase storage upload avatar :", uploadError);
+        setAvatarError(ac.avatarUploadFailed);
+        return;
+      }
+
+      // Cache-bust so the browser picks up the new image at the same path
+      // immediately instead of serving the previous upload from cache.
+      const { data: publicUrlData } = supabase.storage.from("avatars").getPublicUrl(path);
+      const bustedUrl = `${publicUrlData.publicUrl}?v=${Date.now()}`;
+
+      const { error: updateError } = await supabase.auth.updateUser({ data: { avatar_url: bustedUrl } });
+      if (updateError) {
+        logSupabaseError("Erreur Supabase updateUser (avatar_url) :", updateError);
+        setAvatarError(ac.avatarUploadFailed);
+        return;
+      }
+
+      setCurrentAvatarUrl(bustedUrl);
+      router.refresh();
+    } catch (error) {
+      logSupabaseError("Erreur Supabase upload avatar :", error);
+      setAvatarError(ac.avatarUploadFailed);
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
 
   async function handleSaveName(event: FormEvent) {
     event.preventDefault();
@@ -242,12 +306,37 @@ export default function AccountPage({
         </Link>
 
         <div className="mt-4 flex items-center gap-4">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1E8E5A] to-[#166B44] text-xl font-semibold text-white">
-            {initialsFor(nameInput.trim(), currentEmail)}
-          </span>
+          <div className="group relative">
+            <UserAvatar avatarUrl={currentAvatarUrl} size={56} />
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={avatarUploading}
+              aria-label={ac.changePhotoCta}
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-black/0 text-white opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100 disabled:cursor-wait"
+            >
+              <Camera className="h-5 w-5" strokeWidth={1.75} />
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={handleAvatarChange}
+              className="hidden"
+            />
+          </div>
           <div>
             <h1 className="text-2xl font-semibold text-ink">{ac.title}</h1>
             {currentEmail && <p className="text-sm text-slate-500">{currentEmail}</p>}
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={avatarUploading}
+              className="mt-0.5 text-xs font-medium text-brand-600 hover:text-brand-700 disabled:opacity-50"
+            >
+              {avatarUploading ? ac.saving : ac.changePhotoCta}
+            </button>
+            {avatarError && <p className="mt-0.5 text-xs text-red-600">{avatarError}</p>}
           </div>
         </div>
 

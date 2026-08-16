@@ -13,6 +13,8 @@ import {
   type DiffStatus,
 } from "@/lib/fileCompare";
 import { useLocale } from "@/components/LocaleProvider";
+import { useAdInterstitial } from "@/lib/useAdInterstitial";
+import AdInterstitialModal from "@/components/AdInterstitialModal";
 
 type Slot = "a" | "b";
 
@@ -119,10 +121,13 @@ export default function FileComparator() {
     }
   }
 
+  const adInterstitial = useAdInterstitial();
+
   async function handleDownloadReport() {
     if (!result) return;
     const blob = await buildDiffReportBlob(result);
     triggerDownload(blob, "rapport-differences.xlsx");
+    adInterstitial.trigger();
   }
 
   const visibleEntries = result
@@ -310,6 +315,8 @@ export default function FileComparator() {
           </div>
         )}
       </div>
+
+      <AdInterstitialModal open={adInterstitial.open} onClose={adInterstitial.close} />
     </div>
   );
 }

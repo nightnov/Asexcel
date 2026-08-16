@@ -92,7 +92,7 @@ export default function ChatMessage({ role, content, cached }: ChatMessageData) 
 
       {cached && (
         <span className="text-[11px] text-slate-400">
-          ⚡ Réponse servie depuis le cache — aucun appel Groq
+          ⚡ Réponse servie depuis le cache, aucun appel Groq
         </span>
       )}
 

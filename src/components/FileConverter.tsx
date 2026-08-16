@@ -18,6 +18,8 @@ import {
   type CsvSeparator,
 } from "@/lib/fileConvert";
 import { useLocale } from "@/components/LocaleProvider";
+import { useAdInterstitial } from "@/lib/useAdInterstitial";
+import AdInterstitialModal from "@/components/AdInterstitialModal";
 
 type OutputFormat = "pdf" | "csv" | "json";
 
@@ -108,6 +110,8 @@ export default function FileConverter() {
     if (file) await loadSheetData(file, sheetName);
   }
 
+  const adInterstitial = useAdInterstitial();
+
   async function handleConvertAndDownload() {
     if (!file || !sheetData) return;
     setConverting(true);
@@ -121,6 +125,7 @@ export default function FileConverter() {
         const blob = await buildPdfBlob(sheetData, selectedSheet || file.name);
         triggerDownload(blob, outputFileName(file.name, "pdf"));
       }
+      adInterstitial.trigger();
     } catch {
       setError(tt.conversionFailed);
     } finally {
@@ -289,6 +294,8 @@ export default function FileConverter() {
           </div>
         )}
       </div>
+
+      <AdInterstitialModal open={adInterstitial.open} onClose={adInterstitial.close} />
     </div>
   );
 }

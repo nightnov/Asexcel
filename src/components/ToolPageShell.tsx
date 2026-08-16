@@ -5,7 +5,8 @@ import { poppins, inter } from "@/lib/fonts";
 import LandingHeader from "@/components/LandingHeader";
 import LandingFooter from "@/components/LandingFooter";
 import AdBanner from "@/components/AdBanner";
-import ProUpsellTrigger from "@/components/ProUpsellTrigger";
+import ProUpsellNote from "@/components/ProUpsellNote";
+import SidebarAdColumns from "@/components/SidebarAdColumns";
 
 export default function ToolPageShell({ children }: { children: ReactNode }) {
   return (
@@ -35,11 +36,12 @@ export default function ToolPageShell({ children }: { children: ReactNode }) {
           </div>
 
           <AdBanner slot="tool-result" className="mx-auto mt-6" />
+          <ProUpsellNote />
         </div>
       </section>
 
       <LandingFooter />
-      <ProUpsellTrigger />
+      <SidebarAdColumns />
     </div>
   );
 }

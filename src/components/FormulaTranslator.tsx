@@ -9,6 +9,8 @@ import {
   type LangCode,
 } from "@/lib/excelFormulaTranslator";
 import { useLocale } from "@/components/LocaleProvider";
+import { useAdInterstitial } from "@/lib/useAdInterstitial";
+import AdInterstitialModal from "@/components/AdInterstitialModal";
 
 type SourceSelection = "auto" | LangCode;
 
@@ -41,6 +43,8 @@ export default function FormulaTranslator() {
     setSeparatorsSwapped(false);
   }
 
+  const adInterstitial = useAdInterstitial();
+
   async function handleCopy() {
     if (!output) return;
     try {
@@ -48,6 +52,7 @@ export default function FormulaTranslator() {
       setCopied(true);
       setCopyError(false);
       setTimeout(() => setCopied(false), 1500);
+      adInterstitial.trigger();
     } catch {
       setCopyError(true);
       setTimeout(() => setCopyError(false), 2500);
@@ -175,6 +180,8 @@ export default function FormulaTranslator() {
           <p className="mt-3 text-xs text-amber-600">⚠️ {tt.separatorWarning}</p>
         )}
       </div>
+
+      <AdInterstitialModal open={adInterstitial.open} onClose={adInterstitial.close} />
     </div>
   );
 }

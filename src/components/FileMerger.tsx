@@ -6,6 +6,8 @@ import { usePlan } from "@/lib/usePlan";
 import { fileSizeLimitBytes, buildTooLargeMessage } from "@/lib/fileSizeLimits";
 import { mergeFiles, buildXlsxBlob, triggerDownload } from "@/lib/fileMergeSplit";
 import { useLocale } from "@/components/LocaleProvider";
+import { useAdInterstitial } from "@/lib/useAdInterstitial";
+import AdInterstitialModal from "@/components/AdInterstitialModal";
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} o`;
@@ -75,10 +77,13 @@ export default function FileMerger() {
     }
   }
 
+  const adInterstitial = useAdInterstitial();
+
   async function handleDownloadMerged() {
     if (!mergeSummary) return;
     const blob = await buildXlsxBlob(mergeSummary.headers, mergeSummary.rows, "Fusion");
     triggerDownload(blob, "fusion.xlsx");
+    adInterstitial.trigger();
   }
 
   return (
@@ -174,6 +179,8 @@ export default function FileMerger() {
           )}
         </div>
       </div>
+
+      <AdInterstitialModal open={adInterstitial.open} onClose={adInterstitial.close} />
     </div>
   );
 }

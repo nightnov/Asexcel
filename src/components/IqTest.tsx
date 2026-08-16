@@ -5,6 +5,8 @@ import { getRandomQuestions, getScoreBand, type IqQuestion, type QuestionCategor
 import Confetti from "@/components/Confetti";
 import { useLocale } from "@/components/LocaleProvider";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { useAdInterstitial } from "@/lib/useAdInterstitial";
+import AdInterstitialModal from "@/components/AdInterstitialModal";
 
 type Stage = "intro" | "quiz" | "result";
 /** "result" stage sub-phase: score is withheld behind a CTA + a short calculating animation before reveal. */
@@ -40,6 +42,7 @@ function ShareButton({
   total: number;
 }) {
   const [toast, setToast] = useState<string | null>(null);
+  const adInterstitial = useAdInterstitial();
 
   async function handleShare() {
     const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/outils/test-qi` : "";
@@ -58,6 +61,7 @@ function ShareButton({
     try {
       await navigator.clipboard.writeText(fullText);
       setToast(tq.copiedToast);
+      adInterstitial.trigger();
     } catch {
       setToast(tq.copyFailedToast);
     }
@@ -82,6 +86,8 @@ function ShareButton({
           </div>
         </div>
       )}
+
+      <AdInterstitialModal open={adInterstitial.open} onClose={adInterstitial.close} />
     </>
   );
 }

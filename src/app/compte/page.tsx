@@ -19,6 +19,7 @@ export default async function ComptePage() {
         userId={MOCK_USER_ID}
         email="dev@localhost"
         name={null}
+        avatarUrl={null}
         plan="free"
         planType={null}
         transactionId={null}
@@ -57,12 +58,14 @@ export default async function ComptePage() {
   const quota = await getDailyQuotaStatus(supabase, user.id).catch(() => null);
 
   const name = (user.user_metadata?.full_name as string | undefined) ?? (user.user_metadata?.name as string | undefined) ?? null;
+  const avatarUrl = (user.user_metadata?.avatar_url as string | undefined) ?? null;
 
   return (
     <AccountPage
       userId={user.id}
       email={user.email ?? null}
       name={name}
+      avatarUrl={avatarUrl}
       plan={(profile?.plan ?? "free") as UserPlan}
       planType={(profile?.plan_type ?? null) as ProPlanType | null}
       transactionId={profile?.tebex_transaction_id ?? null}

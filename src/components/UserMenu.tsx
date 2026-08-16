@@ -8,11 +8,10 @@ import { MessageSquare, Wrench, Settings, Sparkles, LogOut, ChevronDown } from "
 import { useLocale } from "@/components/LocaleProvider";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { createClient } from "@/lib/supabase/client";
+import UserAvatar from "@/components/UserAvatar";
 
-function initialsFor(user: User): string {
-  const name = (user.user_metadata?.full_name as string | undefined) ?? (user.user_metadata?.name as string | undefined);
-  const source = name ?? user.email ?? "?";
-  return source.trim().charAt(0).toUpperCase();
+function avatarUrlFor(user: User): string | null {
+  return (user.user_metadata?.avatar_url as string | undefined) ?? null;
 }
 
 function displayNameFor(user: User, unknownLabel: string): string {
@@ -62,7 +61,7 @@ export default function UserMenu({ user }: { user: User }) {
     { href: "/compte", label: t.nav.monCompte, icon: Settings },
   ];
 
-  const initials = initialsFor(user);
+  const avatarUrl = avatarUrlFor(user);
   const name = displayNameFor(user, t.userMenu.unknownName);
 
   return (
@@ -74,9 +73,7 @@ export default function UserMenu({ user }: { user: User }) {
         aria-expanded={open}
         className="flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2 transition hover:bg-white/5"
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#1E8E5A] to-[#166B44] text-xs font-semibold text-white ring-2 ring-white/10">
-          {initials}
-        </span>
+        <UserAvatar avatarUrl={avatarUrl} size={32} className="ring-2 ring-white/10" />
         <ChevronDown className={`h-3.5 w-3.5 text-white/50 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
@@ -86,9 +83,7 @@ export default function UserMenu({ user }: { user: User }) {
           className="absolute right-0 top-[calc(100%+0.6rem)] z-50 w-72 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_20px_56px_-16px_rgba(15,23,42,0.3)]"
         >
           <div className="flex items-center gap-3 px-4 py-4">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1E8E5A] to-[#166B44] text-sm font-semibold text-white">
-              {initials}
-            </span>
+            <UserAvatar avatarUrl={avatarUrl} size={40} />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-gray-900">{name}</p>
               <p className="truncate text-xs text-gray-500">{user.email}</p>

@@ -7,6 +7,8 @@ import TurnstileWidget from "./TurnstileWidget";
 import QuotaCounter from "./QuotaCounter";
 import QuotaModal from "./QuotaModal";
 import AdBanner from "./AdBanner";
+import AdInterstitialModal from "./AdInterstitialModal";
+import { useAdInterstitial } from "@/lib/useAdInterstitial";
 import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { TURNSTILE_ENABLED } from "@/lib/turnstileConfig";
 import { detectLanguage } from "@/lib/excelFormulaTranslator";
@@ -110,6 +112,7 @@ export default function FormulaGenerator() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const quota = useDailyQuota();
+  const adInterstitial = useAdInterstitial();
 
   const { formula: resultFormula, explanation: resultExplanation } = useMemo(
     () => splitCreateResult(result),
@@ -193,6 +196,7 @@ export default function FormulaGenerator() {
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
+      adInterstitial.trigger();
     } catch {
       setError(tt.clipboardError);
     }
@@ -354,6 +358,7 @@ export default function FormulaGenerator() {
         onCreateAccount={() => router.push("/inscription")}
         onUpgrade={() => router.push("/checkout")}
       />
+      <AdInterstitialModal open={adInterstitial.open} onClose={adInterstitial.close} />
     </div>
   );
 }
