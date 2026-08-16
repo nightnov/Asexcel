@@ -8,11 +8,11 @@ import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { useLocale } from "@/components/LocaleProvider";
 import OtpCodeInput from "@/components/OtpCodeInput";
-import { GoogleIcon, FacebookIcon, AppleIcon, MicrosoftIcon, EnvelopeIcon, CheckCircleIcon } from "@/components/icons/AuthIcons";
+import { GoogleIcon, FacebookIcon, EnvelopeIcon, CheckCircleIcon } from "@/components/icons/AuthIcons";
 
 type Mode = "options" | "credentials" | "otpEmail" | "otpCode" | "success";
 type Status = "idle" | "sending" | "error";
-type OAuthProvider = "google" | "facebook" | "apple" | "azure";
+type OAuthProvider = "google" | "facebook";
 
 const RESEND_COOLDOWN_SECONDS = 30;
 const SUCCESS_AUTO_CONTINUE_MS = 1600;
@@ -336,20 +336,6 @@ export default function LoginPage() {
                       loading={oauthLoading === "facebook"}
                       disabled={oauthLoading !== null}
                       onClick={() => handleOAuth("facebook")}
-                    />
-                    <OAuthButton
-                      icon={<AppleIcon />}
-                      label={t.auth.continueWithApple}
-                      loading={oauthLoading === "apple"}
-                      disabled={oauthLoading !== null}
-                      onClick={() => handleOAuth("apple")}
-                    />
-                    <OAuthButton
-                      icon={<MicrosoftIcon />}
-                      label={t.auth.continueWithMicrosoft}
-                      loading={oauthLoading === "azure"}
-                      disabled={oauthLoading !== null}
-                      onClick={() => handleOAuth("azure")}
                     />
                   </div>
 

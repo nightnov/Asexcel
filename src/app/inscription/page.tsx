@@ -8,12 +8,12 @@ import { AUTH_DISABLED } from "@/lib/dev-auth";
 import { getAuthErrorMessage, logSupabaseError } from "@/lib/authError";
 import { useLocale } from "@/components/LocaleProvider";
 import { LockIcon, SparklesIcon } from "@/components/icons/ToolIcons";
-import { GoogleIcon, FacebookIcon, AppleIcon, MicrosoftIcon, EnvelopeIcon, CheckCircleIcon } from "@/components/icons/AuthIcons";
+import { GoogleIcon, FacebookIcon, EnvelopeIcon, CheckCircleIcon } from "@/components/icons/AuthIcons";
 import OtpCodeInput from "@/components/OtpCodeInput";
 
 type Mode = "options" | "credentials" | "otpEmail" | "otpCode" | "success";
 type Status = "idle" | "sending" | "error";
-type OAuthProvider = "google" | "facebook" | "apple" | "azure";
+type OAuthProvider = "google" | "facebook";
 
 const RESEND_COOLDOWN_SECONDS = 30;
 const MIN_PASSWORD_LENGTH = 8;
@@ -317,20 +317,6 @@ export default function InscriptionPage() {
                       loading={oauthLoading === "facebook"}
                       disabled={oauthLoading !== null}
                       onClick={() => handleOAuth("facebook")}
-                    />
-                    <SsoButton
-                      icon={<AppleIcon />}
-                      label={t.auth.continueWithApple}
-                      loading={oauthLoading === "apple"}
-                      disabled={oauthLoading !== null}
-                      onClick={() => handleOAuth("apple")}
-                    />
-                    <SsoButton
-                      icon={<MicrosoftIcon />}
-                      label={t.auth.continueWithMicrosoft}
-                      loading={oauthLoading === "azure"}
-                      disabled={oauthLoading !== null}
-                      onClick={() => handleOAuth("azure")}
                     />
 
                     {oauthError && <p className="text-xs text-red-600">{oauthError}</p>}
