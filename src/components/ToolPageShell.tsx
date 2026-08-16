@@ -4,6 +4,8 @@ import styles from "@/app/landing.module.css";
 import { poppins, inter } from "@/lib/fonts";
 import LandingHeader from "@/components/LandingHeader";
 import LandingFooter from "@/components/LandingFooter";
+import AdBanner from "@/components/AdBanner";
+import ProUpsellTrigger from "@/components/ProUpsellTrigger";
 
 export default function ToolPageShell({ children }: { children: ReactNode }) {
   return (
@@ -31,10 +33,13 @@ export default function ToolPageShell({ children }: { children: ReactNode }) {
           >
             {children}
           </div>
+
+          <AdBanner slot="tool-result" className="mx-auto mt-6" />
         </div>
       </section>
 
       <LandingFooter />
+      <ProUpsellTrigger />
     </div>
   );
 }
