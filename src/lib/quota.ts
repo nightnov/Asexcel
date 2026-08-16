@@ -69,11 +69,18 @@ async function loadProfile(supabase: SupabaseClient<Database>, userId: string): 
     .maybeSingle();
 
   if (error) {
+    console.error("Profile load error:", error);
     throw new Error(`Impossible de charger le profil utilisateur pour vérifier le quota : ${error.message}`);
   }
 
   if (!profile) {
-    await createMissingProfile(userId);
+    try {
+      await createMissingProfile(userId);
+    } catch (createError) {
+      console.error("Failed to create missing profile:", createError);
+      // Fall back to default even if creation fails — quota check will retry next time
+      return { used: 0, plan: "free" };
+    }
     // Fresh row — schema defaults are 0 used / today / 'free'.
     return { used: 0, plan: "free" };
   }

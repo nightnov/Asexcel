@@ -218,7 +218,14 @@
       "Bash(git add *)",
       "Bash(git config *)",
       "Bash(git commit -m ' *)",
-      "Bash(xargs -n1 basename)"
+      "Bash(xargs -n1 basename)",
+      "Bash(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "Bash(Stop-Process -Force)",
+      "Bash(awk 'NR!=1 {print $2}')",
+      "Bash(xargs kill -9)",
+      "Bash(cat)",
+      "Bash(cat > *)",
+      "Bash(cat >> *)"
     ]
   }
 }

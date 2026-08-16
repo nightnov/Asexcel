@@ -41,7 +41,7 @@ export default function TarifsPage() {
             {/* Invité */}
             <div className="flex flex-col rounded-3xl border border-white/10 bg-white/[0.04] p-7 shadow-2xl backdrop-blur-xl">
               <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-white/70">
-                {isMember ? " " : p.currentPlanBadge}
+                {isMember ? "Gratuit" : p.currentPlanBadge}
               </span>
               <div className="mt-4 font-serif text-lg font-semibold text-white">{p.guestName}</div>
               <div className="mt-1 text-2xl font-bold text-white">{p.guestPriceLabel}</div>
