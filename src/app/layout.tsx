@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   },
   description:
     "Nettoyez, convertissez, fusionnez, divisez et comparez vos fichiers Excel et CSV directement dans votre navigateur. Générateur de formules et assistant IA en français. Gratuit, sans inscription.",
+  // Bing Webmaster Tools site ownership. Google Search Console is verified by
+  // DNS TXT record instead, so it needs nothing here.
+  verification: {
+    other: {
+      "msvalidate.01": "F40B596F7C575EA1C4F406FEC4BAAC3A",
+    },
+  },
   // favicon.svg is deliberately not listed: it is a 230 KB base64 PNG wrapped
   // in an <svg> tag, not real vector art, so it costs 15x favicon.ico for an
   // identical result and crawlers fetching it first can time out. The .ico is
