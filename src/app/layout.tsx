@@ -20,10 +20,13 @@ export const metadata: Metadata = {
   },
   description:
     "Nettoyez, convertissez, fusionnez, divisez et comparez vos fichiers Excel et CSV directement dans votre navigateur. Générateur de formules et assistant IA en français. Gratuit, sans inscription.",
+  // favicon.svg is deliberately not listed: it is a 230 KB base64 PNG wrapped
+  // in an <svg> tag, not real vector art, so it costs 15x favicon.ico for an
+  // identical result and crawlers fetching it first can time out. The .ico is
+  // 48x48, which is the size Google's favicon guidelines ask for.
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
