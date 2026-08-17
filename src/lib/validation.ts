@@ -70,5 +70,6 @@ export function sanitizeFilename(filename: string): string {
     .normalize("NFKD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-zA-Z0-9.\-_]/g, "_")
+    .replace(/\.\./g, "_")
     .slice(-150);
 }

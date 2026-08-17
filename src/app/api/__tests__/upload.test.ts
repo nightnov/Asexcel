@@ -1,3 +1,9 @@
+/**
+ * @jest-environment node
+ */
+// The route under test imports next/server, which needs the real Web
+// Request/Response globals — jsdom (this project's default test
+// environment) doesn't provide them. Node 18+ does natively.
 import { POST } from '@/app/api/upload/route'
 import { NextRequest } from 'next/server'
 

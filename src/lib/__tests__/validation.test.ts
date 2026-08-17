@@ -24,7 +24,7 @@ describe('validation', () => {
       const file = new File(['test'], 'test.txt', { type: 'text/plain' })
       const result = validateExcelFile(file)
       expect(result.ok).toBe(false)
-      expect(result.error).toContain('format')
+      expect(result.error?.toLowerCase()).toContain('format')
     })
 
     it('should reject file by extension even if MIME type is correct', () => {
@@ -39,7 +39,10 @@ describe('validation', () => {
       const file = new File([largeContent], 'large.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
       const result = validateExcelFile(file)
       expect(result.ok).toBe(false)
-      expect(result.error).toContain('taille')
+      // Oversized files report via `sizeExceeded` (not `error`) so callers can
+      // render a plan-aware, translated message — see src/lib/validation.ts.
+      expect(result.sizeExceeded).toBeTruthy()
+      expect(result.sizeExceeded?.limitBytes).toBe(10 * 1024 * 1024)
     })
 
     it('should accept files exactly at 10MB limit', () => {

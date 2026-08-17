@@ -2,78 +2,60 @@ import { getAuthErrorMessage, logSupabaseError } from '@/lib/authError'
 
 describe('authError', () => {
   describe('getAuthErrorMessage', () => {
-    it('should return error message for common auth errors', () => {
-      const knownErrors = [
-        'Email not confirmed',
-        'Invalid login credentials',
-        'User already registered',
-      ]
-
-      knownErrors.forEach((error) => {
-        const message = getAuthErrorMessage(error)
-        expect(message).toBeTruthy()
-        expect(typeof message).toBe('string')
-      })
+    it('should return the Error instance message when present', () => {
+      const error = new Error('Invalid login credentials')
+      expect(getAuthErrorMessage(error, 'fallback')).toBe('Invalid login credentials')
     })
 
-    it('should return fallback message for unknown errors', () => {
-      const unknownError = 'Some random unknown error code'
-      const message = getAuthErrorMessage(unknownError)
-      expect(message).toBeTruthy()
-      expect(typeof message).toBe('string')
-      // Should not contain the raw error code for unknown errors
-      expect(message.length).toBeGreaterThan(0)
+    it('should return a string error as-is', () => {
+      expect(getAuthErrorMessage('Some string error', 'fallback')).toBe('Some string error')
     })
 
-    it('should handle empty error code', () => {
-      const message = getAuthErrorMessage('')
-      expect(message).toBeTruthy()
+    it('should extract .message from a plain error-shaped object', () => {
+      const error = { message: 'Some error' }
+      expect(getAuthErrorMessage(error, 'fallback')).toBe('Some error')
     })
 
-    it('should be user-friendly (French)', () => {
-      const message = getAuthErrorMessage('Invalid login credentials')
-      // Message should be in French for French users
-      expect(message).toBeTruthy()
-      // Common French words that might appear
-      const frenchWords = ['erreur', 'invalide', 'credentials', 'mot', 'passe', 'email']
-      const isFrench = frenchWords.some((word) =>
-        message.toLowerCase().includes(word)
-      )
-      // At least should be a reasonable message
-      expect(message.length).toBeGreaterThan(5)
+    it('should extract .error_description when .message is absent', () => {
+      const error = { error_description: 'Described error' }
+      expect(getAuthErrorMessage(error, 'fallback')).toBe('Described error')
+    })
+
+    it('should extract .msg when .message and .error_description are absent', () => {
+      const error = { msg: 'Msg error' }
+      expect(getAuthErrorMessage(error, 'fallback')).toBe('Msg error')
+    })
+
+    it('should return the fallback for an empty string error', () => {
+      expect(getAuthErrorMessage('', 'fallback message')).toBe('fallback message')
+    })
+
+    it('should return the fallback for null/undefined', () => {
+      expect(getAuthErrorMessage(null, 'fallback message')).toBe('fallback message')
+      expect(getAuthErrorMessage(undefined, 'fallback message')).toBe('fallback message')
+    })
+
+    it('should return the fallback for an Error with an empty message', () => {
+      expect(getAuthErrorMessage(new Error(''), 'fallback message')).toBe('fallback message')
+    })
+
+    it('should return the fallback for an object with no recognized field', () => {
+      expect(getAuthErrorMessage({ status: 500 }, 'fallback message')).toBe('fallback message')
     })
   })
 
   describe('logSupabaseError', () => {
-    it('should not throw on valid error object', () => {
-      const error = new Error('Test error')
-      expect(() => {
-        logSupabaseError(error)
-      }).not.toThrow()
+    it('should not throw on an Error instance', () => {
+      expect(() => logSupabaseError('Erreur :', new Error('Test error'))).not.toThrow()
     })
 
-    it('should handle Error instances', () => {
-      const error = new Error('Supabase connection failed')
-      expect(() => {
-        logSupabaseError(error)
-      }).not.toThrow()
+    it('should not throw on a plain object with a message property', () => {
+      expect(() => logSupabaseError('Erreur :', { message: 'Some error' })).not.toThrow()
     })
 
-    it('should handle objects with message property', () => {
-      const error = { message: 'Some error' }
-      expect(() => {
-        logSupabaseError(error)
-      }).not.toThrow()
-    })
-
-    it('should handle null/undefined', () => {
-      expect(() => {
-        logSupabaseError(null)
-      }).not.toThrow()
-
-      expect(() => {
-        logSupabaseError(undefined)
-      }).not.toThrow()
+    it('should not throw on null or undefined', () => {
+      expect(() => logSupabaseError('Erreur :', null)).not.toThrow()
+      expect(() => logSupabaseError('Erreur :', undefined)).not.toThrow()
     })
   })
 })
