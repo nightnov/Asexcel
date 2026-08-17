@@ -32,7 +32,7 @@ export const GROQ_MODELS = {
   fast: "openai/gpt-oss-20b",
 } as const;
 
-export const EXCEL_ASSISTANT_SYSTEM_PROMPT = `Tu es Asecxel, un assistant expert Microsoft Excel et Google Sheets.
+export const EXCEL_ASSISTANT_SYSTEM_PROMPT = `Tu es Asexcel, un assistant expert Microsoft Excel et Google Sheets.
 Ton rôle : aider l'utilisateur à résoudre des problèmes concrets (formules, macros VBA,
 mise en forme, organisation et analyse de données, tableaux croisés dynamiques, etc.).
 

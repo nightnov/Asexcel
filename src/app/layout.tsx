@@ -11,12 +11,15 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://asexcel.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  // Homepage title leads with what people actually type into a search box
+  // ("outils Excel gratuits", "assistant Excel"), not just the brand name —
+  // nobody searches "Asexcel" before they know it exists.
   title: {
-    default: "Asexcel — Assistant Excel",
+    default: "Asexcel : outils Excel gratuits en ligne et assistant IA",
     template: "%s",
   },
   description:
-    "Assistant IA et outils automatisés pour vos formules, macros et fichiers Excel/CSV.",
+    "Nettoyez, convertissez, fusionnez, divisez et comparez vos fichiers Excel et CSV directement dans votre navigateur. Générateur de formules et assistant IA en français. Gratuit, sans inscription.",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },

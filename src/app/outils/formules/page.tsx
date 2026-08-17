@@ -3,7 +3,7 @@ import ToolPageShell from "@/components/ToolPageShell";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Traducteur de formules Excel FR ↔ EN — Asecxel",
+  title: "Traduire les formules Excel français anglais | Asexcel",
   description:
     "Convertissez instantanément vos formules Excel entre le français et l'anglais, gratuitement et sans IA.",
   path: "/outils/formules",

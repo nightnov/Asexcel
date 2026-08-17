@@ -3,8 +3,8 @@ import ToolPageShell from "@/components/ToolPageShell";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Convertisseur Excel → PDF/CSV/JSON — Asecxel",
-  description: "Convertissez une feuille Excel/CSV en PDF, CSV ou JSON — gratuit, local et sans IA.",
+  title: "Convertir un fichier Excel en PDF, CSV ou JSON | Asexcel",
+  description: "Convertissez une feuille Excel/CSV en PDF, CSV ou JSON : gratuit, local et sans IA.",
   path: "/outils/convertisseur",
 });
 

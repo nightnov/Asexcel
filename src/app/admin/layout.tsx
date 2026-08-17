@@ -6,7 +6,7 @@ import { AUTH_DISABLED } from "@/lib/dev-auth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export const metadata = {
-  title: "Dashboard Admin — Asexcel",
+  title: "Dashboard Admin | Asexcel",
   robots: { index: false, follow: false },
 };
 

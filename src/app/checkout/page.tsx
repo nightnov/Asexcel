@@ -4,7 +4,7 @@ import { AUTH_DISABLED, MOCK_USER_ID } from "@/lib/dev-auth";
 import CheckoutPage from "@/components/CheckoutPage";
 
 export const metadata = {
-  title: "Passer au plan Pro — Asexcel",
+  title: "Passer au plan Pro | Asexcel",
   robots: { index: false, follow: true },
 };
 

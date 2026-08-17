@@ -3,7 +3,7 @@ import ToolPageShell from "@/components/ToolPageShell";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Questions, Requêtes & Problèmes — Asecxel",
+  title: "Aide et support | Asexcel",
   description: "Trouvez des réponses rapides à vos questions ou envoyez-nous votre message.",
   path: "/outils/support",
 });

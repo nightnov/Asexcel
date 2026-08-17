@@ -3,7 +3,7 @@ import ToolPageShell from "@/components/ToolPageShell";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Comparateur de 2 versions d'un fichier — Asecxel",
+  title: "Comparer deux fichiers Excel en ligne, gratuit | Asexcel",
   description:
     "Comparez cellule par cellule deux versions d'un fichier Excel/CSV et exportez un rapport de différences — gratuit, local et sans IA.",
   path: "/outils/comparateur",

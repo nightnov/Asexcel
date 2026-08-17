@@ -6,7 +6,7 @@ import styles from "@/app/landing.module.css";
 import { poppins, inter } from "@/lib/fonts";
 
 export const metadata: Metadata = {
-  title: "Page introuvable — Asexcel",
+  title: "Page introuvable | Asexcel",
   description: "Cette page n'existe pas ou plus. Retrouvez tous les outils Asexcel depuis l'accueil.",
   robots: { index: false, follow: true },
 };
